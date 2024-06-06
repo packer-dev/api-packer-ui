@@ -5,9 +5,7 @@ from chatgpt.models import Role
 
 router = APIRouter()
 
-client = OpenAI(
-    api_key="",
-)
+client = OpenAI()
 
 def get_chat_completion(messages, model="gpt-3.5-turbo"):
 
