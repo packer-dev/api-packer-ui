@@ -1,6 +1,11 @@
 from pydantic import BaseModel
 from typing import Any
 
+
+class LoginDTO(BaseModel):
+    email: str
+    password: str
+
 class User(BaseModel):
     id: Any
     name: str

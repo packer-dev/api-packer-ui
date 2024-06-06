@@ -1,7 +1,6 @@
 from firebase_admin import db
 from fastapi import APIRouter
-from props.models import Prop
-from utils import find_index
+from data.models import LoginDTO, User
 
 router = APIRouter()
 
@@ -31,54 +30,55 @@ async def getProducts(offset: int, limit: int):
 async def getUsers(offset: int, limit: int):
     return await searchLimit("users",offset, limit)
 
-    
-@router.post("/components/props")
-async def get_props_by_id_component(prop: Prop, id: str):
-    ref = db.reference("components")
-    components = ref.get()
-    index = find_index(components, id)
-    if (index == -1):
-        return []
+@router.post("/api/auth/login")
+async def getUsers(loginDTO: LoginDTO):
+    ref = db.reference("data")
+    data = ref.get()
+    if (data is None or 'users' not in data): 
+        return {
+            'status': 1,
+            'message': 'Email or password incorrect!'
+        }
     else:
-        if 'props' in components[index] and components[index]['props'] is not None:
-            props = components[index]['props']
-            props.append(prop.model_dump()) 
-            components[index]['props'] = props
+        data = data['users']
+        for obj in data:
+            if obj['email'] == loginDTO.email and obj['password'] == loginDTO.password:
+                return obj
+        return {
+            'status': 1,
+            'message': 'Email or password incorrect!'
+        }
+
+def checkExistAccount(user: User, users: list[User]):
+    for obj in users:
+        if obj['email'] == user.email:
+            return True 
+    return False
+
+@router.post("/api/auth/register")
+async def getUsers(user: User):
+    ref = db.reference("data")
+    data = ref.get()
+
+    if (data is None): 
+        ref.set({
+            'users': [dict(user)]
+        })
+        return user
+    else:
+        if ('users' not in data):
+            data['users'] = [dict(user)]
         else:
-            components[index]['props'] = [prop.model_dump()]
-
-        ref.set(components)
-        return dict(prop)
-
-@router.delete("/components/props")
-async def get_props_by_id_component(idProp: str, idComponent: str):
-    ref = db.reference("components")
-    components = ref.get()
-    index = find_index(components, idComponent)
-    if (index == -1):
-        return []
-    else:
-        if 'props' in components[index] and components[index]['props'] is not None:
-            props = components[index]['props']
-            props = [x for x in props if str(x['id']) != str(idProp)]
-            components[index]['props'] = props
-
-            ref.set(components)
-        return True
-
-@router.put("/components/props")
-async def update_props_by_id_component(prop: Prop, id: str):
-    ref = db.reference("components")
-    components = ref.get()
-    index = find_index(components, id)
-    if (index == -1):
-        return []
-    else:
-        if 'props' in components[index] and components[index]['props'] is not None:
-            props = components[index]['props']
-            indexProp = find_index(props, prop.id)
-            props[indexProp] = prop.model_dump()
-            components[index]['props'] = props
-
-            ref.set(components)
-        return True
+            checkAccount = checkExistAccount(user, data['users'])
+            if (checkAccount):
+                return {
+                    'status': 1,
+                    'message': 'Email exist in system!'
+                }
+            else:
+                data['users'].append(dict(user))
+        
+        ref.set(data)
+        return user
+       
+        
