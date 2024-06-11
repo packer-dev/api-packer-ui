@@ -1,4 +1,4 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,9 +16,9 @@ from data.app import router as dataRouter
 app = FastAPI()
 
 cred = credentials.Certificate("./packer-ui-firebase.json")
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://packer-ui-default-rtdb.firebaseio.com/'
-})
+firebase_admin.initialize_app(
+    cred, {"databaseURL": "https://packer-ui-default-rtdb.firebaseio.com/"}
+)
 
 origins = ["*"]
 
@@ -28,10 +28,12 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)    
+)
+
 
 class ComponentDeleteMulti(BaseModel):
     idList: List[str]
+
 
 @app.post("/components/multi")
 async def delete_component(idList: ComponentDeleteMulti):
@@ -39,10 +41,11 @@ async def delete_component(idList: ComponentDeleteMulti):
         ref = db.reference("/components")
         query = ref.get()
         result = [obj for obj in query if str(obj["id"]) not in idList.idList]
-        ref.set(result)        
+        ref.set(result)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 app.include_router(chatGPTRouter)
 app.include_router(componentRouter)
