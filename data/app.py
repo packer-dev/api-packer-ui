@@ -1,10 +1,25 @@
-from fastapi import APIRouter
+from firebase_admin import db
+from fastapi import APIRouter, Body
 from data.models import LoginDTO, User, SearchDTO, ProfileDTO
 from data.services.AuthService import login, register
-from data.services.SearchService import searchFilter
+from data.services.SearchService import searchFilter, searchFilterProduct
 from data.services.ProfileService import profileData
+from typing import Any
 
 router = APIRouter()
+
+
+@router.get("/api/data/get")
+async def getAll():
+    ref = db.reference("data")
+    return ref.get()
+
+
+@router.post("/api/data/set")
+async def getAll(data: Any = Body(...)):
+    ref = db.reference("data")
+    ref.set(data)
+    return True
 
 
 @router.post("/api/categories")
@@ -14,7 +29,7 @@ async def getCategories(param: SearchDTO):
 
 @router.post("/api/products")
 async def getProducts(param: SearchDTO):
-    return await searchFilter("products", param)
+    return await searchFilterProduct(param)
 
 
 @router.post("/api/users")
