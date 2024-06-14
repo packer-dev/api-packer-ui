@@ -38,9 +38,9 @@ class Category(BaseModel):
 class Product(BaseModel):
     id: str
     name: str
-    price: str
-    sale: str
-    thumbnail: str
+    price: int
+    sale: int
+    image: str
     category: Category
 
 
@@ -89,3 +89,4 @@ class ProfileDTO(BaseModel):
     type: str
     data: Any
     user: User
+    isDelete: bool

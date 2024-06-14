@@ -9,6 +9,8 @@ async def profileData(profile: ProfileDTO):
     data = profile["data"]
     user = profile["user"]
     type = profile["type"]
+    isDelete = profile["isDelete"]
+
     if data is None or user is None:
         return None
 
@@ -18,18 +20,21 @@ async def profileData(profile: ProfileDTO):
     if type in user:
         list = user[type]
 
-    if data["id"] == "":
-        data["id"] = str(uuid.uuid4())
-        list.append(data)
+    if isDelete:
+        list = [obj for obj in list if obj["id"] != data["id"]]
     else:
-        index = -1
-        for pos, obj in enumerate(list):
-            if obj["id"] == data["id"]:
-                index = pos
-                break
-        if index == -1:
-            return None
-        list[index] = data
+        if data["id"] == "":
+            data["id"] = str(uuid.uuid4())
+            list.append(data)
+        else:
+            index = -1
+            for pos, obj in enumerate(list):
+                if obj["id"] == data["id"]:
+                    index = pos
+                    break
+            if index == -1:
+                return None
+            list[index] = data
 
     index = -1
 
