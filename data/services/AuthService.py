@@ -4,6 +4,15 @@ from utils import md5
 import uuid
 
 
+async def getUserById(id: str):
+    ref = db.reference("data")
+    data = ref.get()
+
+    users = [] if "users" not in data else data["users"]
+    users = [user for user in users if user["id"] == id]
+    return None if len(users) == 0 else users[0]
+
+
 async def login(loginDTO: LoginDTO):
     ref = db.reference("data")
     data = ref.get()

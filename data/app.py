@@ -1,7 +1,7 @@
 from firebase_admin import db
 from fastapi import APIRouter, Body
 from data.models import LoginDTO, User, SearchDTO, ProfileDTO
-from data.services.AuthService import login, register
+from data.services.AuthService import login, register, getUserById
 from data.services.SearchService import searchFilter, searchFilterProduct
 from data.services.ProfileService import profileData
 from typing import Any
@@ -50,3 +50,8 @@ async def authRegister(user: User):
 @router.post("/api/profile")
 async def profile(param: ProfileDTO):
     return await profileData(param)
+
+
+@router.get("/api/user/id")
+async def getUser(id: str):
+    return await getUserById(id)
