@@ -65,6 +65,12 @@ class PromCode(BaseModel):
     expired_date: str
 
 
+class Bag(BaseModel):
+    id: str
+    product: Product
+    amount: int
+
+
 class User(BaseModel):
     id: str
     name: str
@@ -75,6 +81,8 @@ class User(BaseModel):
     banks: List[Bank]
     orders: List[Order]
     prom_codes: List[PromCode]
+    bags: List[Bag]
+    favorites: List[Product]
 
 
 class ProfileDTO(BaseModel):
