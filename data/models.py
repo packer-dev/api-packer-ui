@@ -71,6 +71,11 @@ class Bag(BaseModel):
     amount: int
 
 
+class Favorite(BaseModel):
+    id: str
+    product: Product
+
+
 class User(BaseModel):
     id: str
     name: str
@@ -82,7 +87,7 @@ class User(BaseModel):
     orders: List[Order]
     prom_codes: List[PromCode]
     bags: List[Bag]
-    favorites: List[Product]
+    favorites: List[Favorite]
 
 
 class ProfileDTO(BaseModel):
