@@ -38,7 +38,7 @@ class Category(BaseModel):
 class Product(BaseModel):
     id: str
     name: str
-    price: int
+    price: float
     sale: int
     image: str
     category: Category
