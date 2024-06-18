@@ -1,9 +1,9 @@
 from firebase_admin import db
 from fastapi import APIRouter, Body
-from data.models import LoginDTO, User, SearchDTO, ProfileDTO
-from data.services.AuthService import login, register, getUserById
+from data.models import LoginDTO, User, SearchDTO, ProfileDTO, GetProfileDTO
+from data.services.AuthService import login, register, getUserById, updateUserService
 from data.services.SearchService import searchFilter, searchFilterProduct
-from data.services.ProfileService import profileData
+from data.services.ProfileService import profileData, getProfileData
 from typing import Any
 
 router = APIRouter()
@@ -52,6 +52,16 @@ async def profile(param: ProfileDTO):
     return await profileData(param)
 
 
+@router.post("/api/profile/get")
+async def profile(param: GetProfileDTO):
+    return await getProfileData(param)
+
+
 @router.get("/api/user/id")
 async def getUser(id: str):
     return await getUserById(id)
+
+
+@router.post("/api/user")
+async def updateUser(user: User):
+    return await updateUserService(user)

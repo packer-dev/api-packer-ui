@@ -1,6 +1,6 @@
 from data.models import User, LoginDTO
 from firebase_admin import db
-from utils import md5
+from utils import md5, find_index
 import uuid
 
 
@@ -54,3 +54,16 @@ async def register(user: User):
                 data["users"].append(dict(user))
         ref.set(data)
         return user
+
+
+async def updateUserService(user: User):
+    ref = db.reference("data")
+    data = ref.get()
+    users = data["users"]
+    index = find_index(users, user.id)
+    if index == -1:
+        return None
+    users[index] = user.model_dump()
+    data["users"] = users
+    ref.set(data)
+    return users[index]

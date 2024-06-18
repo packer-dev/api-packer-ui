@@ -76,18 +76,26 @@ class Favorite(BaseModel):
     product: Product
 
 
+class Notification(BaseModel):
+    sales: bool
+    new_arrivals: bool
+    delivery_status: bool
+
+
 class User(BaseModel):
     id: str
     name: str
     email: str
     password: str
     avatar: str
-    addresses: List[Address]
-    banks: List[Bank]
-    orders: List[Order]
-    prom_codes: List[PromCode]
-    bags: List[Bag]
-    favorites: List[Favorite]
+    addresses: int
+    banks: int
+    orders: int
+    prom_codes: int
+    bags: int
+    favorites: int
+    birthday: str
+    settings: Notification
 
 
 class ProfileDTO(BaseModel):
@@ -95,3 +103,9 @@ class ProfileDTO(BaseModel):
     data: Any
     user: User
     isDelete: bool
+
+
+class GetProfileDTO(BaseModel):
+    type: str
+    idProfile: str
+    idUser: str
