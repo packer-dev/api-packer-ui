@@ -59,7 +59,11 @@ async def profileData(profile: ProfileDTO):
     if index != -1:
         if isNew:
             if type in user:
-                user[type].append(data["id"])
+                user[type].append(
+                    data["id"]
+                    if type != "bags" and type != "favorites"
+                    else data["product"]["id"]
+                )
             else:
                 user[type] = [data["id"]]
         result["users"][index] = user
