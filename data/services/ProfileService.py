@@ -13,7 +13,7 @@ async def getProfileData(profile: GetProfileDTO):
     result = ref.get()
     if type in result:
         if idUser in result[type]:
-            return result[type][idUser]
+            return [obj for obj in result[type][idUser]]
         else:
             return []
     else:
