@@ -35,15 +35,7 @@ async def profileData(profile: ProfileDTO):
 
     list = []
 
-    index = find_index(result["users"], user["id"])
-
-    if index != -1:
-        user[type] = (
-            int(user[type]) + 1
-            if data["id"] == "" or data["id"] is None
-            else int(user[type]) - 1 if isDelete == True else int(user[type])
-        )
-        result["users"][index] = user
+    isNew = data["id"] == ""
 
     if type in result:
         list = result[type][user["id"]]
@@ -61,6 +53,16 @@ async def profileData(profile: ProfileDTO):
     if type not in result:
         result[type] = {}
     result[type][user["id"]] = list
+
+    index = find_index(result["users"], user["id"])
+
+    if index != -1:
+        if isNew:
+            if type in user:
+                user[type].append(data["id"])
+            else:
+                user[type] = [data["id"]]
+        result["users"][index] = user
 
     ref.set(result)
     return data

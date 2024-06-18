@@ -88,12 +88,12 @@ class User(BaseModel):
     email: str
     password: str
     avatar: str
-    addresses: int
-    banks: int
-    orders: int
-    prom_codes: int
-    bags: int
-    favorites: int
+    addresses: List[str]
+    banks: List[str]
+    orders: List[str]
+    prom_codes: List[str]
+    bags: List[str]
+    favorites: List[str]
     birthday: str
     settings: Notification
 
