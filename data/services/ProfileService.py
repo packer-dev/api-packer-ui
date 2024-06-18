@@ -7,18 +7,17 @@ from utils import find_index
 async def getProfileData(profile: GetProfileDTO):
     profile = profile.model_dump()
     idUser = profile["idUser"]
-    idProfile = profile["idProfile"]
     type = profile["type"]
 
     ref = db.reference("data")
     result = ref.get()
-
-    list = result[type][idUser]
-    index = find_index(list, idProfile)
-    if index == -1:
-        return None
-
-    return list[index]
+    if type in result:
+        if idUser in result[type]:
+            return result[type][idUser]
+        else:
+            return []
+    else:
+        return []
 
 
 async def profileData(profile: ProfileDTO):

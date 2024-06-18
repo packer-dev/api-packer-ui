@@ -107,5 +107,4 @@ class ProfileDTO(BaseModel):
 
 class GetProfileDTO(BaseModel):
     type: str
-    idProfile: str
     idUser: str
