@@ -28,7 +28,7 @@ async def login(loginDTO: LoginDTO):
         return {"status": 1, "message": "Email or password incorrect!"}
 
 
-async def checkExistAccount(user: User, users: list[User]):
+def checkExistAccount(user: User, users: list[User]):
     for obj in users:
         if obj["email"] == user.email:
             return True
@@ -41,17 +41,17 @@ async def register(user: User):
     user.password = md5(user.password)
     user.id = str(uuid.uuid4())
     if data is None:
-        ref.set({"users": [dict(user)]})
+        ref.set({"users": [user.model_dump()]})
         return user
     else:
         if "users" not in data:
-            data["users"] = [dict(user)]
+            data["users"] = [user.model_dump()]
         else:
             checkAccount = checkExistAccount(user, data["users"])
             if checkAccount:
                 return {"status": 1, "message": "Email exist in system!"}
             else:
-                data["users"].append(dict(user))
+                data["users"].append(user.model_dump())
         ref.set(data)
         return user
 
