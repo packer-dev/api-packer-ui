@@ -14,7 +14,15 @@ async def getProfileData(profile: GetProfileDTO):
     result = ref.get()
     if type in result and idUser in result[type]:
         if idProfile != "":
-            filter = [obj for obj in result[type][idUser] if obj["id"] == idProfile]
+            filter = []
+            if type != "favorites" and type != "bags":
+                filter = [obj for obj in result[type][idUser] if obj["id"] == idProfile]
+            else:
+                filter = [
+                    obj
+                    for obj in result[type][idUser]
+                    if obj["product"]["id"] == idProfile
+                ]
             data = filter[0] if len(filter) == 1 else None
             return data
         else:
