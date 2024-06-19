@@ -108,3 +108,4 @@ class ProfileDTO(BaseModel):
 class GetProfileDTO(BaseModel):
     type: str
     idUser: str
+    idProfile: str

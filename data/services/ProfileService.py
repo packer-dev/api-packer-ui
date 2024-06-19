@@ -7,17 +7,23 @@ from utils import find_index
 async def getProfileData(profile: GetProfileDTO):
     profile = profile.model_dump()
     idUser = profile["idUser"]
+    idProfile = profile["idProfile"]
     type = profile["type"]
 
     ref = db.reference("data")
     result = ref.get()
-    if type in result:
-        if idUser in result[type]:
-            return [obj for obj in result[type][idUser]]
+    if type in result and idUser in result[type]:
+        if idProfile != "":
+            filter = [obj for obj in result[type][idUser] if obj["id"] == idProfile]
+            data = filter[0] if len(filter) == 1 else None
+            return data
         else:
-            return []
+            if idUser in result[type]:
+                return [obj for obj in result[type][idUser]]
+            else:
+                return []
     else:
-        return []
+        return [] if idProfile == "" else None
 
 
 async def profileData(profile: ProfileDTO):
@@ -56,17 +62,19 @@ async def profileData(profile: ProfileDTO):
 
     index = find_index(result["users"], user["id"])
 
-    if index != -1:
-        if isNew:
-            if type in user:
-                user[type].append(
-                    data["id"]
-                    if type != "bags" and type != "favorites"
-                    else data["product"]["id"]
-                )
-            else:
-                user[type] = [data["id"]]
-        result["users"][index] = user
+    id = data["id"] if type != "bags" and type != "favorites" else data["product"]["id"]
+
+    if index == -1:
+        return None
+    if isNew:
+        if type in user:
+            user[type].append(id)
+        else:
+            user[type] = [data["id"]]
+    if isDelete:
+        user[type] = [obj for obj in user[type] if obj != id]
+
+    result["users"][index] = user
 
     ref.set(result)
     return data
