@@ -32,7 +32,7 @@ async def searchFilterProduct(param: SearchDTO):
         list = [
             product
             for product in list
-            if product["category"]["id"] == filters["category"]
+            if product["category"]["id"] in filters["category"]
         ]
     if search != "":
         list = [
@@ -40,6 +40,23 @@ async def searchFilterProduct(param: SearchDTO):
             for product in list
             if str(search).lower() in str(product["name"]).lower()
         ]
+
+    if "sort" in filters:
+        if filters["sort"]:
+            if filters["sort"] == "price_asc":
+                list = sorted(
+                    list,
+                    key=lambda item: float(item["price"])
+                    - ((float(item["price"]) * float(item["sale"])) / 100),
+                )
+            if filters["sort"] == "price_desc":
+                list = sorted(
+                    list,
+                    key=lambda item: float(item["price"])
+                    - ((float(item["price"]) * float(item["sale"])) / 100),
+                    reverse=True,
+                )
+
     return {
         "list": (list if limit == 0 else list[offset:limit]),
         "total": len(list),
