@@ -109,3 +109,8 @@ class GetProfileDTO(BaseModel):
     type: str
     idUser: str
     idProfile: str
+
+
+class PasswordPTO(BaseModel):
+    id: str
+    password: str

@@ -1,7 +1,20 @@
 from firebase_admin import db
 from fastapi import APIRouter, Body
-from data.models import LoginDTO, User, SearchDTO, ProfileDTO, GetProfileDTO
-from data.services.AuthService import login, register, getUserById, updateUserService
+from data.models import (
+    LoginDTO,
+    User,
+    SearchDTO,
+    ProfileDTO,
+    GetProfileDTO,
+    PasswordPTO,
+)
+from data.services.AuthService import (
+    login,
+    register,
+    getUserById,
+    updateUserService,
+    changePassword,
+)
 from data.services.SearchService import searchFilter, searchFilterProduct
 from data.services.ProfileService import profileData, getProfileData
 from typing import Any
@@ -65,3 +78,8 @@ async def getUser(id: str):
 @router.post("/api/user")
 async def updateUser(user: User):
     return await updateUserService(user)
+
+
+@router.post("/api/auth/change-password")
+async def changePasswordUser(passwordDTO: PasswordPTO):
+    return await changePassword(passwordDTO)

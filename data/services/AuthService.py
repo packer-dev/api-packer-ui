@@ -1,4 +1,4 @@
-from data.models import User, LoginDTO
+from data.models import User, LoginDTO, PasswordPTO
 from firebase_admin import db
 from utils import md5, find_index
 import uuid
@@ -67,3 +67,17 @@ async def updateUserService(user: User):
     data["users"] = users
     ref.set(data)
     return users[index]
+
+
+async def changePassword(passwordDTO: PasswordPTO):
+    passwordDTO = passwordDTO.model_dump()
+    ref = db.reference("data")
+    data = ref.get()
+
+    index = find_index(data["users"], passwordDTO["id"])
+    if index == -1:
+        return False
+    else:
+        data["users"][index]["password"] = md5(passwordDTO["password"])
+        ref.set(data)
+        return True
