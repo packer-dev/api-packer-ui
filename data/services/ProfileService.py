@@ -52,7 +52,7 @@ async def profileData(profile: ProfileDTO):
     isNew = data["id"] == ""
 
     if type in result:
-        list = result[type][user["id"]]
+        list = result[type][user["id"]] if user["id"] in result[type] else []
     if isDelete:
         list = [obj for obj in list if obj["id"] != data["id"]]
     else:
