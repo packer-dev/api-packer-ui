@@ -44,7 +44,7 @@ async def get_chat_gpt_v1(messages: List[Role]):
     return get_chat_completion(messages)
 
 
-@router.post("api/chat-gpt/history/save")
+@router.post("/api/chat-gpt/history/save")
 async def saveHistory(param: ChatGPT):
     ref = db.reference("chatGPT")
     data = ref.get()
