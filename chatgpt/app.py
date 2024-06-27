@@ -7,7 +7,7 @@ from firebase_admin import db
 router = APIRouter()
 
 client = OpenAI(
-    api_key="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",
+    api_key="sk-proj-TUafaX3bRK4ZmSSJxtSMT3BlbkFJTLCSSnIPwVnamhbZOq8W",
 )
 
 
