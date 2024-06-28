@@ -16,7 +16,7 @@ class TextProps(BaseModel):
 class Message(BaseModel):
     id: float
     type: str
-    content: TextProps
+    content: List[TextProps]
     contentSearch: str
     rendered: bool
 
