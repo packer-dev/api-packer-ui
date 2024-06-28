@@ -8,13 +8,13 @@ class Role(BaseModel):
 
 
 class TextProps(BaseModel):
-    id: float
+    id: str
     content: str
     type: str
 
 
 class Message(BaseModel):
-    id: float
+    id: str
     type: str
     content: List[TextProps]
     contentSearch: str
@@ -22,18 +22,18 @@ class Message(BaseModel):
 
 
 class MessageChild(BaseModel):
-    id: float
+    id: str
     list: List[Message]
     isLoading: bool
     index: int
 
 
 class History(BaseModel):
-    id: float
+    id: str
     name: str
     messages: List[MessageChild]
 
 
 class ChatGPT(BaseModel):
-    list: List[History]
+    history: History
     userId: str

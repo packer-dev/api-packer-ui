@@ -1,8 +1,12 @@
 from openai import OpenAI
 from typing import List
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 from chatgpt.models import Role, ChatGPT
 from firebase_admin import db
+from utils import find_index
+import json
+from asyncio import sleep
 
 router = APIRouter()
 
@@ -52,5 +56,72 @@ async def saveHistory(param: ChatGPT):
     param = param.model_dump()
     if data is None:
         data = {}
-    data[param["userId"]] = param["list"]
+
+    userId = param["userId"]
+    history = param["history"]
+    list = []
+    if userId in data:
+        list = data[userId]
+    index = find_index(list, history["id"])
+    if index == -1:
+        list.append(history)
+    else:
+        list[index] = history
+    data[userId] = list
     ref.set(data)
+    return True
+
+
+@router.get("/api/chat-gpt/history/get")
+async def getHistory(id: str):
+    ref = db.reference("chatGPT")
+    data = ref.get()
+    if data is None:
+        return []
+    if id in data:
+        return data[id]
+    else:
+        return []
+
+
+@router.delete("/api/chat-gpt/history/delete")
+async def deleteHistory(userId: str, historyId: str):
+    ref = db.reference("chatGPT")
+    data = ref.get()
+    if data is None:
+        return False
+    if userId not in data:
+        return False
+    list = data[userId]
+    list = [obj for obj in list if str(obj["id"]) != historyId]
+    data[userId] = list
+    ref.set(data)
+    return True
+
+
+@router.get("/api/chat-gpt/history")
+async def getHistoryById(userId: str, historyId: str):
+    ref = db.reference("chatGPT")
+    data = ref.get()
+
+    if data is None:
+        return None
+    if userId not in data:
+        return None
+
+    list = data[userId]
+    list = [obj for obj in list if str(obj["id"]) == historyId]
+
+    return list[0] if len(list) == 1 else None
+
+
+async def waypoints_generator():
+    for i in range(5):
+        data = json.dumps({"lat": 22.09769, "lng": 87.24068})
+        yield f"event: locationUpdate\ndata: {data}\n\n"
+        await sleep(1)
+
+
+@router.get("/api/steam")
+async def testSSE():
+    return StreamingResponse(waypoints_generator(), media_type="text/event-stream")
