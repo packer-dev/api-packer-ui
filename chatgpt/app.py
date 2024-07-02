@@ -72,6 +72,23 @@ async def saveHistory(param: ChatGPT):
     return True
 
 
+@router.put("/api/chat-gpt/history/list")
+async def getHistory(userId: str):
+    ref = db.reference("chatGPT")
+    data = ref.get()
+    if data is None:
+        return None
+    if userId in data:
+        for index, obj in enumerate(data[userId]):
+            data[userId][index]["isArchive"] = (
+                True if obj["isArchive"] == False else True
+            )
+        ref.set(data)
+        return True
+    else:
+        return None
+
+
 @router.get("/api/chat-gpt/history/get")
 async def getHistory(id: str):
     ref = db.reference("chatGPT")
@@ -95,6 +112,19 @@ async def deleteHistory(userId: str, historyId: str):
     list = data[userId]
     list = [obj for obj in list if str(obj["id"]) != historyId]
     data[userId] = list
+    ref.set(data)
+    return True
+
+
+@router.delete("/api/chat-gpt/history/delete/all")
+async def deleteHistory(userId: str):
+    ref = db.reference("chatGPT")
+    data = ref.get()
+    if data is None:
+        return False
+    if userId not in data:
+        return False
+    data[userId] = []
     ref.set(data)
     return True
 

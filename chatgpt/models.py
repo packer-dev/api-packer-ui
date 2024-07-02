@@ -32,6 +32,8 @@ class History(BaseModel):
     id: str
     name: str
     messages: List[MessageChild]
+    timeSaved: str = None
+    isArchive: bool
 
 
 class ChatGPT(BaseModel):
