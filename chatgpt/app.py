@@ -7,6 +7,7 @@ from firebase_admin import db
 from utils import find_index
 import json
 from asyncio import sleep
+from utils import find_index
 
 router = APIRouter()
 
@@ -143,6 +144,26 @@ async def getHistoryById(userId: str, historyId: str):
     list = [obj for obj in list if str(obj["id"]) == historyId]
 
     return list[0] if len(list) == 1 else None
+
+
+@router.get("/api/chat-gpt/history/share")
+async def getHistoryById(historyId: str):
+    ref = db.reference("chatGPT")
+    data = ref.get()
+
+    if data is None:
+        return None
+    keys = data.keys()
+    list = []
+    for key in keys:
+        list = list + data[key]
+
+    index = find_index(list, historyId)
+
+    if index == -1:
+        return None
+    else:
+        return list[index]
 
 
 async def waypoints_generator():
