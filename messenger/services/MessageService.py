@@ -1,7 +1,7 @@
 from firebase_admin import db
 from utils import find_index
 import uuid
-from messenger.models import Message, Group
+from messenger.models import Message, Group, SendMessageDTO
 
 
 async def getGroupByUser(userId: str):
@@ -21,9 +21,12 @@ async def getGroupByUser(userId: str):
     return groups
 
 
-async def sendMessage(message: Message, group: Group):
+async def sendMessage(dto: SendMessageDTO):
     ref = db.reference("messenger")
     data = ref.get()
+
+    message = dto.message
+    group = dto.group
 
     groups = []
     if "groups" in data:

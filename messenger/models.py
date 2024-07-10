@@ -38,3 +38,8 @@ class Group(BaseModel):
     data: Any
     timeCreated: str
     lastTimeUpdate: str
+
+
+class SendMessageDTO(BaseModel):
+    message: Message
+    group: Group
