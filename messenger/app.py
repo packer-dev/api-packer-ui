@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body
 from messenger.models import LoginDTO
-from services.AuthServices import login, register
+from messenger.services.AuthServices import login, register
 
 router = APIRouter()
 
