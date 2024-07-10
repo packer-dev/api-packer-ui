@@ -12,6 +12,7 @@ from props.app import router as propRouter
 from contents.app import router as contentRouter
 from custom.app import router as customRouter
 from data.app import router as dataRouter
+from messenger.app import router as messengerRouter
 
 app = FastAPI()
 
@@ -53,3 +54,4 @@ app.include_router(contentRouter)
 app.include_router(propRouter)
 app.include_router(customRouter)
 app.include_router(dataRouter)
+app.include_router(messengerRouter)
