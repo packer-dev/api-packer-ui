@@ -1,7 +1,7 @@
 from firebase_admin import db
 from utils import find_index
 import uuid
-from models import Message, Group
+from messenger.models import Message, Group
 
 
 async def getGroupByUser(userId: str):

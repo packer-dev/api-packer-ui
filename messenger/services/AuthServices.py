@@ -1,4 +1,4 @@
-from data.models import User, LoginDTO, PasswordPTO
+from messenger.models import User, LoginDTO
 from firebase_admin import db
 from utils import md5, find_index
 import uuid
