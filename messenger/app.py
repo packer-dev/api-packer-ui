@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from messenger.models import LoginDTO, User, SendMessageDTO, Group
-from messenger.services.AuthServices import login, register, getUserById
+from messenger.services.AuthServices import login, register, getUserById, getFriends
 from messenger.services.MessageService import sendMessage, getGroupByUser, updateGroup
 
 router = APIRouter()
@@ -21,7 +21,7 @@ async def getUserByIdAPI(userId: str):
     return await getUserById(userId)
 
 
-@router.get("/api/messenger/v1/message/send")
+@router.post("/api/messenger/v1/message/send")
 async def sendMessageAPI(dto: SendMessageDTO):
     return await sendMessage(dto)
 
@@ -34,3 +34,8 @@ async def getGroupByUserAPI(userId: str):
 @router.get("/api/messenger/v1/group/update")
 async def updateGroupAPI(group: Group):
     return await updateGroup(group)
+
+
+@router.get("/api/messenger/v1/friends")
+async def getFriendsAPI(userId: str):
+    return await getFriends(userId)

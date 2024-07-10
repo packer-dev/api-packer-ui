@@ -20,12 +20,12 @@ class Member(BaseModel):
     id: str
     nickname: str
     user: User
+    isOwner: bool
 
 
 class Message(BaseModel):
     id: str
     content: str
-    type: str
     user: User
     time: str
 
@@ -34,7 +34,7 @@ class Group(BaseModel):
     id: str
     name: str
     members: List[Member]
-    messages: List[Message]
+    lastMessage: Message
     data: Any
     timeCreated: str
     lastTimeUpdate: str

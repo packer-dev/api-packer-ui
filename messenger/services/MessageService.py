@@ -1,7 +1,7 @@
 from firebase_admin import db
 from utils import find_index
 import uuid
-from messenger.models import Message, Group, SendMessageDTO
+from messenger.models import Group, SendMessageDTO
 
 
 async def getGroupByUser(userId: str):
@@ -10,7 +10,7 @@ async def getGroupByUser(userId: str):
 
     groups = []
     if "groups" in data:
-        groups = data["group"]
+        groups = data["groups"]
 
     groups = [
         item
@@ -25,23 +25,30 @@ async def sendMessage(dto: SendMessageDTO):
     ref = db.reference("messenger")
     data = ref.get()
 
-    message = dto.message
-    group = dto.group
+    dto = dto.model_dump()
+
+    message = dto["message"]
+    group = dto["group"]
 
     groups = []
     if "groups" in data:
-        groups = data["group"]
-    message.id = uuid()
-    group["messages"].append(message)
-    if not group.id:
-        group.id = uuid()
-        groups.append(group.model_dump())
-    else:
-        index = find_index(groups, group.id)
-        if index != -1:
-            groups[index] = group.model_dump()
+        groups = data["groups"]
 
+    messages = {}
+    if "messages" in data:
+        messages = data["messages"]
+    message["id"] = str(uuid.uuid4())
+
+    group["lastMessage"] = message
+    if not group["id"]:
+        group["id"] = str(uuid.uuid4())
+        messages[group["id"]] = [group]
+    else:
+        messages[group["id"]].append(group)
+
+    groups.append(group)
     data["groups"] = groups
+    data["messages"] = messages
     ref.set(data)
 
     return message

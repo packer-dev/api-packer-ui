@@ -67,3 +67,14 @@ async def updateUserService(user: User):
     data["users"] = users
     ref.set(data)
     return users[index]
+
+
+async def getFriends(userId: str):
+    ref = db.reference("messenger")
+    data = ref.get()
+
+    if data is None:
+        return []
+
+    if "users" in data:
+        return [user for user in data["users"] if user["id"] != userId]
