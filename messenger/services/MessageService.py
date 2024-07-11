@@ -21,6 +21,20 @@ async def getGroupByUser(userId: str):
     return groups
 
 
+async def getMessagesByGroup(groupId: str):
+    ref = db.reference("messenger")
+    data = ref.get()
+
+    if data is None:
+        return []
+
+    list = []
+    if "messages" in data:
+        list = [] if groupId not in data["messages"] else data["messages"][groupId]
+
+    return list
+
+
 async def sendMessage(dto: SendMessageDTO):
     ref = db.reference("messenger")
     data = ref.get()

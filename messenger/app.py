@@ -1,7 +1,12 @@
 from fastapi import APIRouter
 from messenger.models import LoginDTO, User, SendMessageDTO, Group
 from messenger.services.AuthServices import login, register, getUserById, getFriends
-from messenger.services.MessageService import sendMessage, getGroupByUser, updateGroup
+from messenger.services.MessageService import (
+    sendMessage,
+    getGroupByUser,
+    updateGroup,
+    getMessagesByGroup,
+)
 
 router = APIRouter()
 
@@ -34,6 +39,11 @@ async def getGroupByUserAPI(userId: str):
 @router.get("/api/messenger/v1/group/update")
 async def updateGroupAPI(group: Group):
     return await updateGroup(group)
+
+
+@router.get("/api/messenger/v1/group/id")
+async def updateGroupAPI(groupId: str):
+    return await getMessagesByGroup(groupId)
 
 
 @router.get("/api/messenger/v1/friends")
