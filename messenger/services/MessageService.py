@@ -63,6 +63,10 @@ async def sendMessage(dto: SendMessageDTO):
 
     group["lastMessage"] = message
 
+    index = find_index(groups, group["id"])
+    if index != -1:
+        groups[index] = group
+
     data["groups"] = groups
     data["messages"] = messages
     ref.set(data)
