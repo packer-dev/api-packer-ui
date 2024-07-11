@@ -54,13 +54,15 @@ async def sendMessage(dto: SendMessageDTO):
     message["id"] = str(uuid.uuid4())
 
     group["lastMessage"] = message
-    if not group["id"]:
+    if group["id"] == "":
         group["id"] = str(uuid.uuid4())
         messages[group["id"]] = [message]
+        groups.append(group)
     else:
         messages[group["id"]].append(message)
 
-    groups.append(group)
+    group["lastMessage"] = message
+
     data["groups"] = groups
     data["messages"] = messages
     ref.set(data)
