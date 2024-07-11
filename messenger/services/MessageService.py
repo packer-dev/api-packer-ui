@@ -56,9 +56,9 @@ async def sendMessage(dto: SendMessageDTO):
     group["lastMessage"] = message
     if not group["id"]:
         group["id"] = str(uuid.uuid4())
-        messages[group["id"]] = [group]
+        messages[group["id"]] = [message]
     else:
-        messages[group["id"]].append(group)
+        messages[group["id"]].append(message)
 
     groups.append(group)
     data["groups"] = groups
