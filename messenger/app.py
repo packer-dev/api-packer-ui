@@ -6,6 +6,7 @@ from messenger.services.MessageService import (
     getGroupByUser,
     updateGroup,
     getMessagesByGroup,
+    getGroupAndMessageByPerson,
 )
 
 router = APIRouter()
@@ -49,3 +50,8 @@ async def updateGroupAPI(groupId: str):
 @router.get("/api/messenger/v1/friends")
 async def getFriendsAPI(userId: str):
     return await getFriends(userId)
+
+
+@router.get("/api/messenger/v1/message/get-child")
+async def getGroupAndMessageByPersonAPI(userId: str, currentId: str):
+    return await getGroupAndMessageByPerson(userId, currentId)

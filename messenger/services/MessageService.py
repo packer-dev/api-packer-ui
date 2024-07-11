@@ -90,3 +90,33 @@ async def updateGroup(group: Group):
     ref.set(data)
 
     return group
+
+
+async def getGroupAndMessageByPerson(userId: str, currentId: str):
+    ref = db.reference("messenger")
+    data = ref.get()
+
+    if data is None or "groups" not in data:
+        return {"group": None, "messages": []}
+
+    groups = data["groups"]
+
+    item = [
+        group
+        for group in groups
+        if len(
+            [
+                member
+                for member in group["members"]
+                if member["user"]["id"] == userId or member["user"]["id"] == currentId
+            ]
+        )
+        == 2
+    ]
+
+    if len(item) == 0:
+        return {"group": None, "messages": []}
+
+    item = item[0]
+
+    return {"group": item, "messages": await getMessagesByGroup(item["id"])}
