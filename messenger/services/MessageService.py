@@ -104,7 +104,8 @@ async def getGroupAndMessageByPerson(userId: str, currentId: str):
     item = [
         group
         for group in groups
-        if len(
+        if len(group["members"]) == 2
+        and len(
             [
                 member
                 for member in group["members"]

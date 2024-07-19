@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,6 +13,7 @@ from contents.app import router as contentRouter
 from custom.app import router as customRouter
 from data.app import router as dataRouter
 from messenger.app import router as messengerRouter
+from upload.app import upload_cloudinary
 
 app = FastAPI()
 
@@ -44,6 +45,17 @@ async def delete_component(idList: ComponentDeleteMulti):
         result = [obj for obj in query if str(obj["id"]) not in idList.idList]
         ref.set(result)
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/upload/image")
+async def upload_image(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        result = await upload_cloudinary(contents)
+        image_url = result["secure_url"]
+        return {"filename": file.filename, "image_url": image_url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
