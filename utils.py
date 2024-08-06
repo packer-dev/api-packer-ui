@@ -13,3 +13,8 @@ def md5(password: str) -> str:
     hashed_password = hashlib.md5(password.encode("utf-8"))
 
     return hashed_password.hexdigest()
+
+
+def find_by_id(list, id):
+    list = [user for user in list if user["id"] == id]
+    return None if len(list) == 0 else list[0]

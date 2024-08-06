@@ -6,11 +6,10 @@ from messenger.models import Group, SendMessageDTO
 
 async def getGroupByUser(userId: str):
     ref = db.reference("messenger")
-    data = ref.get()
+    groups = ref.child("groups").get()
 
-    groups = []
-    if "groups" in data:
-        groups = data["groups"]
+    if groups is None:
+        groups = []
 
     groups = [
         item
@@ -23,34 +22,27 @@ async def getGroupByUser(userId: str):
 
 async def getMessagesByGroup(groupId: str):
     ref = db.reference("messenger")
-    data = ref.get()
+    messages = ref.child("messages").child(groupId)
 
-    if data is None:
-        return []
-
-    list = []
-    if "messages" in data:
-        list = [] if groupId not in data["messages"] else data["messages"][groupId]
-
-    return list
+    return messages
 
 
 async def sendMessage(dto: SendMessageDTO):
     ref = db.reference("messenger")
-    data = ref.get()
 
     dto = dto.model_dump()
-
     message = dto["message"]
     group = dto["group"]
 
-    groups = []
-    if "groups" in data:
-        groups = data["groups"]
+    groups = ref.child("groups").get()
+    messages = ref.child("messages").get()
 
-    messages = {}
-    if "messages" in data:
-        messages = data["messages"]
+    if groups is None:
+        groups = []
+
+    if messages is None:
+        messages = {}
+
     message["id"] = str(uuid.uuid4())
 
     group["lastMessage"] = message
@@ -67,39 +59,34 @@ async def sendMessage(dto: SendMessageDTO):
     if index != -1:
         groups[index] = group
 
-    data["groups"] = groups
-    data["messages"] = messages
-    ref.set(data)
+    ref.child("groups").set(groups)
+    ref.child("messages").child(group["id"]).set(messages)
 
     return message
 
 
 async def updateGroup(group: Group):
     ref = db.reference("messenger")
-    data = ref.get()
+    groups = ref.child("groups").get()
 
-    groups = []
-    if "groups" in data:
-        groups = data["group"]
+    if groups is None:
+        groups = []
 
     index = find_index(groups, group.id)
     if index != -1:
         groups[index] = group.model_dump()
 
-    data["groups"] = groups
-    ref.set(data)
+    ref.child("groups").set(groups)
 
     return group
 
 
 async def getGroupAndMessageByPerson(userId: str, currentId: str):
     ref = db.reference("messenger")
-    data = ref.get()
 
-    if data is None or "groups" not in data:
+    groups = ref.child("groups").get()
+    if groups is None:
         return {"group": None, "messages": []}
-
-    groups = data["groups"]
 
     item = [
         group

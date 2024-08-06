@@ -1,80 +1,81 @@
 from messenger.models import User, LoginDTO
 from firebase_admin import db
-from utils import md5, find_index
+from utils import md5, find_index, find_by_id
 import uuid
 
 
 async def getUserById(id: str):
     ref = db.reference("messenger")
-    data = ref.get()
+    users = ref.child("users").get()
 
-    users = [] if "users" not in data else data["users"]
-    users = [user for user in users if user["id"] == id]
-    return None if len(users) == 0 else users[0]
+    if users is not None:
+        return find_by_id(users, id)
+    return None
 
 
 async def login(loginDTO: LoginDTO):
     ref = db.reference("messenger")
-    data = ref.get()
-    if data is None or "users" not in data:
-        return None
-    else:
-        data = data["users"]
-        for obj in data:
+    users = ref.child("users").get()
+    if users is not None:
+        for obj in users:
             if obj["email"] == loginDTO.email and obj["password"] == md5(
                 loginDTO.password
             ):
                 return obj
         return None
 
+    return None
+
 
 def checkExistAccount(user: User, users: list[User]):
     for obj in users:
         if obj["email"] == user.email:
             return True
+
     return False
 
 
 async def register(user: User):
     ref = db.reference("messenger")
-    data = ref.get()
+    users = ref.child("users").get()
     user.password = md5(user.password)
     user.id = str(uuid.uuid4())
-    if data is None:
-        ref.set({"users": [user.model_dump()]})
-        return user
+
+    if users is None:
+        users = [user.model_dump()]
     else:
-        if "users" not in data:
-            data["users"] = [user.model_dump()]
+        checkAccount = checkExistAccount(user, users)
+        if checkAccount:
+            return {"status": 1, "message": "Email exist in system!"}
         else:
-            checkAccount = checkExistAccount(user, data["users"])
-            if checkAccount:
-                return {"status": 1, "message": "Email exist in system!"}
-            else:
-                data["users"].append(user.model_dump())
-        ref.set(data)
-        return user
+            users.append(user.model_dump())
+
+    ref.child("users").set(users)
+    return user
 
 
 async def updateUserService(user: User):
     ref = db.reference("messenger")
-    data = ref.get()
-    users = data["users"]
+    users = ref.child("users").get()
+
+    if users is None:
+        return None
+
     index = find_index(users, user.id)
     if index == -1:
         return None
+
     users[index] = user.model_dump()
-    data["users"] = users
-    ref.set(data)
+
+    ref.child("users").set(users)
     return users[index]
 
 
 async def getFriends(userId: str):
     ref = db.reference("messenger")
-    data = ref.get()
+    users = ref.child("users").get()
 
-    if data is None:
-        return []
+    if users is None:
+        return None
 
-    if "users" in data:
-        return [user for user in data["users"] if user["id"] != userId]
+    return [user for user in users if user["id"] != userId]
