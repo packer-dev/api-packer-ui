@@ -4,7 +4,7 @@ import uuid
 from messenger.models import Group, SendMessageDTO
 
 
-async def getGroupByUser(userId: str):
+async def get_group_by_user(user_id: str):
     ref = db.reference("messenger")
     groups = ref.child("groups").get()
 
@@ -14,20 +14,20 @@ async def getGroupByUser(userId: str):
     groups = [
         item
         for item in groups
-        if len([obj for obj in item["members"] if obj["user"]["id"] == userId]) > 0
+        if len([obj for obj in item["members"] if obj["user"]["id"] == user_id]) > 0
     ]
 
     return groups
 
 
-async def getMessagesByGroup(groupId: str):
+async def get_messages_by_group(group_id: str):
     ref = db.reference("messenger")
-    messages = ref.child("messages").child(groupId)
+    messages = ref.child("messages").child(group_id)
 
     return messages
 
 
-async def sendMessage(dto: SendMessageDTO):
+async def send_message(dto: SendMessageDTO):
     ref = db.reference("messenger")
 
     dto = dto.model_dump()
@@ -65,7 +65,7 @@ async def sendMessage(dto: SendMessageDTO):
     return message
 
 
-async def updateGroup(group: Group):
+async def update_group(group: Group):
     ref = db.reference("messenger")
     groups = ref.child("groups").get()
 
@@ -81,7 +81,7 @@ async def updateGroup(group: Group):
     return group
 
 
-async def getGroupAndMessageByPerson(userId: str, currentId: str):
+async def get_group_and_message_by_person(user_id: str, current_id: str):
     ref = db.reference("messenger")
 
     groups = ref.child("groups").get()
@@ -96,7 +96,7 @@ async def getGroupAndMessageByPerson(userId: str, currentId: str):
             [
                 member
                 for member in group["members"]
-                if member["user"]["id"] == userId or member["user"]["id"] == currentId
+                if member["user"]["id"] == user_id or member["user"]["id"] == current_id
             ]
         )
         == 2
@@ -107,4 +107,4 @@ async def getGroupAndMessageByPerson(userId: str, currentId: str):
 
     item = item[0]
 
-    return {"group": item, "messages": await getMessagesByGroup(item["id"])}
+    return {"group": item, "messages": await get_messages_by_group(item["id"])}

@@ -4,7 +4,7 @@ from utils import md5, find_index, find_by_id
 import uuid
 
 
-async def getUserById(id: str):
+async def get_user_by_id(id: str):
     ref = db.reference("messenger")
     users = ref.child("users").get()
 
@@ -13,13 +13,13 @@ async def getUserById(id: str):
     return None
 
 
-async def login(loginDTO: LoginDTO):
+async def login(login_dto: LoginDTO):
     ref = db.reference("messenger")
     users = ref.child("users").get()
     if users is not None:
         for obj in users:
-            if obj["email"] == loginDTO.email and obj["password"] == md5(
-                loginDTO.password
+            if obj["email"] == login_dto.email and obj["password"] == md5(
+                login_dto.password
             ):
                 return obj
         return None
@@ -27,7 +27,7 @@ async def login(loginDTO: LoginDTO):
     return None
 
 
-def checkExistAccount(user: User, users: list[User]):
+def check_exist_account(user: User, users: list[User]):
     for obj in users:
         if obj["email"] == user.email:
             return True
@@ -44,8 +44,8 @@ async def register(user: User):
     if users is None:
         users = [user.model_dump()]
     else:
-        checkAccount = checkExistAccount(user, users)
-        if checkAccount:
+        check_account = check_exist_account(user, users)
+        if check_account:
             return {"status": 1, "message": "Email exist in system!"}
         else:
             users.append(user.model_dump())
@@ -54,7 +54,7 @@ async def register(user: User):
     return user
 
 
-async def updateUserService(user: User):
+async def update_user_service(user: User):
     ref = db.reference("messenger")
     users = ref.child("users").get()
 
@@ -71,11 +71,11 @@ async def updateUserService(user: User):
     return users[index]
 
 
-async def getFriends(userId: str):
+async def get_friends(user_id: str):
     ref = db.reference("messenger")
     users = ref.child("users").get()
 
     if users is None:
         return None
 
-    return [user for user in users if user["id"] != userId]
+    return [user for user in users if user["id"] != user_id]
