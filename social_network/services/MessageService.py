@@ -5,7 +5,7 @@ from social_network.models import Group, SendMessageDTO
 
 
 async def get_group_by_user(user_id: str):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     groups = ref.child("groups").get()
 
     if groups is None:
@@ -21,14 +21,14 @@ async def get_group_by_user(user_id: str):
 
 
 async def get_messages_by_group(group_id: str):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     messages = ref.child("messages").child(group_id)
 
     return messages
 
 
 async def send_message(dto: SendMessageDTO):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
 
     dto = dto.model_dump()
     message = dto["message"]
@@ -45,7 +45,7 @@ async def send_message(dto: SendMessageDTO):
 
     message["id"] = str(uuid.uuid4())
 
-    group["lastMessage"] = message
+    group["last_message"] = message
     if group["id"] == "":
         group["id"] = str(uuid.uuid4())
         messages[group["id"]] = [message]
@@ -53,7 +53,7 @@ async def send_message(dto: SendMessageDTO):
     else:
         messages[group["id"]].append(message)
 
-    group["lastMessage"] = message
+    group["last_message"] = message
 
     index = find_index(groups, group["id"])
     if index != -1:
@@ -66,7 +66,7 @@ async def send_message(dto: SendMessageDTO):
 
 
 async def update_group(group: Group):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     groups = ref.child("groups").get()
 
     if groups is None:
@@ -82,7 +82,7 @@ async def update_group(group: Group):
 
 
 async def get_group_and_message_by_person(user_id: str, current_id: str):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
 
     groups = ref.child("groups").get()
     if groups is None:

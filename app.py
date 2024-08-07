@@ -12,7 +12,7 @@ from props.app import router as propRouter
 from contents.app import router as contentRouter
 from custom.app import router as customRouter
 from data.app import router as dataRouter
-from messenger.app import router as messengerRouter
+from social_network.app import router as socialNetworkRouter
 from upload.app import upload_cloudinary
 
 app = FastAPI()
@@ -37,18 +37,6 @@ class ComponentDeleteMulti(BaseModel):
     idList: List[str]
 
 
-@app.post("/components/multi")
-async def delete_component(idList: ComponentDeleteMulti):
-    try:
-        ref = db.reference("/components")
-        query = ref.get()
-        result = [obj for obj in query if str(obj["id"]) not in idList.idList]
-        ref.set(result)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/upload/image")
 async def upload_image(file: UploadFile = File(...)):
     try:
@@ -66,4 +54,4 @@ app.include_router(contentRouter)
 app.include_router(propRouter)
 app.include_router(customRouter)
 app.include_router(dataRouter)
-app.include_router(messengerRouter)
+app.include_router(socialNetworkRouter)

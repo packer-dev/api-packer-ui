@@ -5,7 +5,7 @@ import uuid
 
 
 async def get_user_by_id(id: str):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     users = ref.child("users").get()
 
     if users is not None:
@@ -14,7 +14,7 @@ async def get_user_by_id(id: str):
 
 
 async def login(login_dto: LoginDTO):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     users = ref.child("users").get()
     if users is not None:
         for obj in users:
@@ -36,7 +36,7 @@ def check_exist_account(user: User, users: list[User]):
 
 
 async def register(user: User):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     users = ref.child("users").get()
     user.password = md5(user.password)
     user.id = str(uuid.uuid4())
@@ -55,7 +55,7 @@ async def register(user: User):
 
 
 async def update_user_service(user: User):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     users = ref.child("users").get()
 
     if users is None:
@@ -72,10 +72,24 @@ async def update_user_service(user: User):
 
 
 async def get_friends(user_id: str):
-    ref = db.reference("social_network")
+    ref = db.reference("social-network")
     users = ref.child("users").get()
+    relationships = ref.child("relationships").get()
 
-    if users is None:
-        return None
+    if users is None or relationships is None:
+        return []
 
-    return [user for user in users if user["id"] != user_id]
+    relationships = [
+        relationship
+        for relationship in relationships
+        if relationship["user1"] == user_id and relationship["type"] == 3
+    ]
+
+    response = []
+
+    for relationship in relationships:
+        index = find_index(users, relationship["user2"])
+        if index != -1:
+            response.append(users[index])
+
+    return response
