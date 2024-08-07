@@ -1,7 +1,12 @@
 from fastapi import APIRouter
-from messenger.models import LoginDTO, User, SendMessageDTO, Group
-from messenger.services.AuthServices import login, register, get_user_by_id, get_friends
-from messenger.services.MessageService import (
+from social_network.models import LoginDTO, User, SendMessageDTO, Group
+from social_network.services.AuthServices import (
+    login,
+    register,
+    get_user_by_id,
+    get_friends,
+)
+from social_network.services.MessageService import (
     send_message,
     get_group_by_user,
     update_group,

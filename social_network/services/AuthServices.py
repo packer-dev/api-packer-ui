@@ -1,11 +1,11 @@
-from messenger.models import User, LoginDTO
+from social_network.models import User, LoginDTO
 from firebase_admin import db
 from utils import md5, find_index, find_by_id
 import uuid
 
 
 async def get_user_by_id(id: str):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     users = ref.child("users").get()
 
     if users is not None:
@@ -14,7 +14,7 @@ async def get_user_by_id(id: str):
 
 
 async def login(login_dto: LoginDTO):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     users = ref.child("users").get()
     if users is not None:
         for obj in users:
@@ -36,7 +36,7 @@ def check_exist_account(user: User, users: list[User]):
 
 
 async def register(user: User):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     users = ref.child("users").get()
     user.password = md5(user.password)
     user.id = str(uuid.uuid4())
@@ -55,7 +55,7 @@ async def register(user: User):
 
 
 async def update_user_service(user: User):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     users = ref.child("users").get()
 
     if users is None:
@@ -72,7 +72,7 @@ async def update_user_service(user: User):
 
 
 async def get_friends(user_id: str):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     users = ref.child("users").get()
 
     if users is None:

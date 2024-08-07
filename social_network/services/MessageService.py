@@ -1,11 +1,11 @@
 from firebase_admin import db
 from utils import find_index
 import uuid
-from messenger.models import Group, SendMessageDTO
+from social_network.models import Group, SendMessageDTO
 
 
 async def get_group_by_user(user_id: str):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     groups = ref.child("groups").get()
 
     if groups is None:
@@ -21,14 +21,14 @@ async def get_group_by_user(user_id: str):
 
 
 async def get_messages_by_group(group_id: str):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     messages = ref.child("messages").child(group_id)
 
     return messages
 
 
 async def send_message(dto: SendMessageDTO):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
 
     dto = dto.model_dump()
     message = dto["message"]
@@ -66,7 +66,7 @@ async def send_message(dto: SendMessageDTO):
 
 
 async def update_group(group: Group):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
     groups = ref.child("groups").get()
 
     if groups is None:
@@ -82,7 +82,7 @@ async def update_group(group: Group):
 
 
 async def get_group_and_message_by_person(user_id: str, current_id: str):
-    ref = db.reference("messenger")
+    ref = db.reference("social_network")
 
     groups = ref.child("groups").get()
     if groups is None:
