@@ -22,7 +22,7 @@ async def get_group_by_user(user_id: str):
 
 async def get_messages_by_group(group_id: str):
     ref = db.reference("social-network")
-    messages = ref.child("messages").child(group_id)
+    messages = ref.child("messages").child(group_id).get()
 
     return messages
 
@@ -87,7 +87,7 @@ async def get_group_and_message_by_person(user_id: str, current_id: str):
     groups = ref.child("groups").get()
     if groups is None:
         return {"group": None, "messages": []}
-
+    print(groups)
     item = [
         group
         for group in groups
@@ -107,4 +107,6 @@ async def get_group_and_message_by_person(user_id: str, current_id: str):
 
     item = item[0]
 
-    return {"group": item, "messages": await get_messages_by_group(item["id"])}
+    messages = await get_messages_by_group(item["id"])
+
+    return {"group": item, "messages": messages}
