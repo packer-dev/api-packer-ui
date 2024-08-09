@@ -13,7 +13,6 @@ from contents.app import router as contentRouter
 from custom.app import router as customRouter
 from data.app import router as dataRouter
 from social_network.app import router as socialNetworkRouter
-from upload.app import upload_cloudinary
 
 app = FastAPI()
 
@@ -35,17 +34,6 @@ app.add_middleware(
 
 class ComponentDeleteMulti(BaseModel):
     idList: List[str]
-
-
-@app.post("/upload/image")
-async def upload_image(file: UploadFile = File(...)):
-    try:
-        contents = await file.read()
-        result = await upload_cloudinary(contents)
-        image_url = result["secure_url"]
-        return {"filename": file.filename, "image_url": image_url}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 app.include_router(chatGPTRouter)

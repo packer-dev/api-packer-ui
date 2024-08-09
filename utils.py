@@ -1,12 +1,23 @@
 import hashlib
+import os
+from social_network.models import FileDTO, Media
+from social_network.services.CommonServices import upload_media
+import uuid
 
 
 def find_index(list, id):
-    indexComponent = -1
+    index = -1
     for _, item in enumerate(list):
         if str(item["id"]) == str(id):
             return _
-    return indexComponent
+    return index
+
+
+def update_item(items, new_item):
+    index = find_index(items, new_item["id"])
+    if index != -1:
+        items[index] = new_item
+    return items
 
 
 def md5(password: str) -> str:
@@ -15,6 +26,48 @@ def md5(password: str) -> str:
     return hashed_password.hexdigest()
 
 
-def find_by_id(list, id):
-    list = [user for user in list if user["id"] == id]
-    return None if len(list) == 0 else list[0]
+def find_by_id(items, id):
+    items = [user for user in items if user["id"] == id]
+    return None if len(items) == 0 else items[0]
+
+
+def new_value(item, default_value):
+    return default_value if item is None else item
+
+
+import os
+
+
+def is_image(filename):
+    image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"}
+    return os.path.splitext(filename)[1].lower() in image_extensions
+
+
+def is_video(filename):
+    video_extensions = {".mp4", ".avi", ".mov", ".mkv", ".flv", ".wmv"}
+    return os.path.splitext(filename)[1].lower() in video_extensions
+
+
+async def upload_media_db(media_new):
+    media_list = []
+
+    for media in media_new:
+        folder = "Other"
+        if is_image(media.filename):
+            folder = "Image"
+        if is_video(media.filename):
+            folder = "Video"
+
+        file_dto = FileDTO(file=media, folder=f"/FacebookNative/{folder}")
+        result = await upload_media(file_dto)
+        if result:
+            media_db = Media(
+                id=str(uuid.uuid4()),
+                folder=folder,
+                status=1,
+                type=1,
+                url=result["url"],
+            )
+            media_list.append(media_db.model_dump())
+
+    return media_list

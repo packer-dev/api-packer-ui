@@ -1,6 +1,7 @@
 import cloudinary
-from cloudinary.uploader import upload
+from cloudinary import uploader, api
 import io
+
 
 # Configuration
 cloudinary.config(
@@ -10,9 +11,11 @@ cloudinary.config(
 )
 
 
-async def upload_cloudinary(file_contents: bytes):
+async def upload_media_cloudinary(file_contents: bytes, folder: str):
     file_like_object = io.BytesIO(file_contents)
-    result = cloudinary.uploader.upload(
-        file_like_object, folder="FacebookNative", resource_type="image"
-    )
+    result = uploader.upload(file_like_object, folder=folder, resource_type="image")
     return result
+
+
+async def delete_media_cloudinary(folder: str):
+    return api.delete_resources(folder)

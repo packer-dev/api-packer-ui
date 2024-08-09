@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import Any, List
+from typing import Any, List, Optional
+from fastapi import UploadFile, File
 
 
 class LoginDTO(BaseModel):
@@ -57,26 +58,40 @@ class ContentPost(BaseModel):
     id: str
     text: str
     data: Any
-    type: int
+    type: int  # 1. normal # 2.background
 
 
-class MediaPost(BaseModel):
+class Media(BaseModel):
     id: str
     url: str
     status: int
-    type: int  # 1. image #2. video
+    type: int  # 1. image #2. video,
+    folder: str
 
 
 class Post(BaseModel):
     id: str
     user: User
     content: ContentPost
-    media: List[MediaPost]
     time_created: str
     last_time_update: str
     type: int
     tags: List[User]
     feel: str
+
+
+class PostPayload(BaseModel):
+    post: Post
+    media_new: Optional[List[UploadFile]] = File(...)
+    media_old: Optional[List[Media]] = None
+
+    def __iter__(self):
+        return iter((self.post, self.media_new, self.media_old))
+
+
+class PostDTO(BaseModel):
+    post: Post
+    medias: List[Media]
 
 
 class Feel(BaseModel):
@@ -94,3 +109,15 @@ class Comment(BaseModel):
     last_time_update: str
     level: int
     parent: str
+
+
+class CommentPayload(BaseModel):
+    post_id: str
+    comment: Comment
+    media_new: UploadFile = File(...)
+    media_old: Optional[List[Media]] = None
+
+
+class FileDTO(BaseModel):
+    file: UploadFile = File(...)
+    folder: str
