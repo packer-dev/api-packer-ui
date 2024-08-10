@@ -6,7 +6,7 @@ from social_network.services.PostServices import (
     delete_post,
 )
 from social_network.models import PostPayload, Post, Media
-from typing import List
+from typing import List, Optional
 import json
 
 router = APIRouter()

@@ -4,7 +4,7 @@ import uuid
 from social_network.models import PostPayload, FileDTO, Media
 import os
 from social_network.services.CommonServices import delete_media
-
+from typing import Optional
 
 async def get_post_by_id_user(user_id: str, is_profile: str):
     ref = db.reference("social-network")
