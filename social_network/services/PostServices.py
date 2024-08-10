@@ -63,7 +63,10 @@ async def create_post(post_payload: PostPayload):
     post["id"] = str(uuid.uuid4())
     posts = ref.child("posts").get()
 
-    media_list = await upload_media_db(media_new)
+    media_list = []
+    
+    if media_new is not None:
+        media_list = await upload_media_db(media_new)
 
     if posts is None:
         ref.child("posts").set([post])
@@ -102,7 +105,7 @@ async def edit_post(post_payload: PostPayload):
     if len(delete_public_ids) > 0:
         await delete_media(delete_public_ids)
 
-    if len(media_new) > 0:
+    if media_new is not None:
         media_new = await upload_media_db(media_new)
         media_list = media_list + media_new
 
