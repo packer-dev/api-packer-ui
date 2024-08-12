@@ -67,17 +67,17 @@ async def create_post(post_payload: PostPayload):
 
         media_list = []
 
+        print(media_new)
         if media_new is not None:
-            if media_new is not None:
-                if len(media_new) > 0:
-                    media_list = await upload_media_db(media_new)
-                else:
-                    return ""
-            if posts is None:
-                ref.child("posts").set([post])
+            if len(media_new) > 0:
+                media_list = await upload_media_db(media_new)
             else:
-                posts.append(post)
-                ref.child("posts").set(posts)
+                return ""
+        if posts is None:
+            ref.child("posts").set([post])
+        else:
+            posts.append(post)
+            ref.child("posts").set(posts)
 
         ref.child("medias").child("posts").child(post["id"]).set(media_list)
 
