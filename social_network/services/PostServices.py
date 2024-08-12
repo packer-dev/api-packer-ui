@@ -6,6 +6,7 @@ import os
 from social_network.services.CommonServices import delete_media
 from typing import Optional
 
+
 async def get_post_by_id_user(user_id: str, is_profile: str):
     ref = db.reference("social-network")
 
@@ -55,28 +56,35 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
 
 
 async def create_post(post_payload: PostPayload):
-    ref = db.reference("social-network")
+    try:
+        ref = db.reference("social-network")
 
-    post = post_payload.post.model_dump()
-    media_new = post_payload.media_new
+        post = post_payload.post.model_dump()
+        media_new = post_payload.media_new
 
-    post["id"] = str(uuid.uuid4())
-    posts = ref.child("posts").get()
+        post["id"] = str(uuid.uuid4())
+        posts = ref.child("posts").get()
 
-    media_list = []
-    
-    if media_new is not None:
-        media_list = await upload_media_db(media_new)
+        media_list = []
 
-    if posts is None:
-        ref.child("posts").set([post])
-    else:
-        posts.append(post)
-        ref.child("posts").set(posts)
+        if media_new is not None:
+            if media_new is not None:
+                if len(media_new) > 0:
+                    media_list = await upload_media_db(media_new)
+                else:
+                    return ""
+            if posts is None:
+                ref.child("posts").set([post])
+            else:
+                posts.append(post)
+                ref.child("posts").set(posts)
 
-    ref.child("medias").child("posts").child(post["id"]).set(media_list)
+        ref.child("medias").child("posts").child(post["id"]).set(media_list)
 
-    return post
+        return post
+
+    except OSError as err:
+        print("OS error:", err)
 
 
 async def edit_post(post_payload: PostPayload):
@@ -105,7 +113,7 @@ async def edit_post(post_payload: PostPayload):
     if len(delete_public_ids) > 0:
         await delete_media(delete_public_ids)
 
-    if media_new is not None:
+    if len(media_new) > 0:
         media_new = await upload_media_db(media_new)
         media_list = media_list + media_new
 
