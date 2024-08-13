@@ -34,7 +34,7 @@ async def send_message(dto: SendMessageDTO):
     message, group = dto.model_dump().values()
 
     groups = new_value(ref.child("groups").get(), [])
-    messages = new_value(ref.child("messages").get(), {})
+    messages = new_value(ref.child("messages").child(group["id"]).get(), [])
 
     group["last_message"] = message
     if group["id"] == "":
