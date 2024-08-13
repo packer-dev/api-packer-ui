@@ -1,28 +1,27 @@
 from social_network.models import User, LoginDTO
 from firebase_admin import db
-from utils import md5, find_index, find_by_id
+from utils import md5, find_index, find_by_id, new_value
 import uuid
+from datetime import datetime
 
 
 async def get_user_by_id(id: str):
     ref = db.reference("social-network")
-    users = ref.child("users").get()
-
-    if users is not None:
-        return find_by_id(users, id)
-    return None
+    users = new_value(ref.child("users").get(), [])
+    return find_by_id(users, id)
 
 
 async def login(login_dto: LoginDTO):
     ref = db.reference("social-network")
-    users = ref.child("users").get()
-    if users is not None:
-        for obj in users:
-            if obj["email"] == login_dto.email and obj["password"] == md5(
-                login_dto.password
-            ):
-                return obj
-        return None
+    users = new_value(ref.child("users").get(), [])
+    for obj in users:
+        if obj["email"] == login_dto.email and obj["password"] == md5(
+            login_dto.password
+        ):
+            index = find_index(users, obj["id"])
+            users[index]["last_time_active"] = datetime.now()
+            ref.child("users").set(users)
+            return users[index]
 
     return None
 
@@ -37,30 +36,24 @@ def check_exist_account(user: User, users: list[User]):
 
 async def register(user: User):
     ref = db.reference("social-network")
-    users = ref.child("users").get()
+    users = new_value(ref.child("users").get(), [])
     user.password = md5(user.password)
     user.id = str(uuid.uuid4())
+    user.time_created = datetime.now()
+    user.last_time_active = datetime.now()
 
-    if users is None:
-        users = [user.model_dump()]
-    else:
-        check_account = check_exist_account(user, users)
-        if check_account:
-            return {"status": 1, "message": "Email exist in system!"}
-        else:
-            users.append(user.model_dump())
+    check_account = check_exist_account(user, users)
+    if check_account:
+        return {"status": 1, "message": "Email exist in system!"}
 
+    users.append(user.model_dump())
     ref.child("users").set(users)
     return user
 
 
 async def update_user_service(user: User):
     ref = db.reference("social-network")
-    users = ref.child("users").get()
-
-    if users is None:
-        return None
-
+    users = new_value(ref.child("users").get(), [])
     index = find_index(users, user.id)
     if index == -1:
         return None

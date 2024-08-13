@@ -15,7 +15,7 @@ async def send_comment(comment_payload: CommentPayload):
     comments = new_value(comments, [])
 
     comment["id"] = str(uuid.uuid4())
-    comments.append(comment)
+    comments = [comment] + comments
 
     ref.child("comments").child(post_id).set(comments)
     ref.child("medias").child("comments").child(post_id).set(media_list)

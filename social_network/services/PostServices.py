@@ -49,10 +49,9 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
             if post["user"]["id"] == user_id
         ]
 
-    # sort by time
-
-    # sort by time
-    return response
+    # Assuming each item has a datetime field in ISO format
+    sorted_data = sorted(response, key=lambda x: x["post"]["time_created"])
+    return sorted_data
 
 
 async def create_post(post_payload: PostPayload):
