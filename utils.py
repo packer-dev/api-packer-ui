@@ -71,3 +71,11 @@ async def upload_media_db(media_new):
             media_list.append(media_db.model_dump())
 
     return media_list
+
+
+def get_info_user(users, id):
+    index = find_index(users, id)
+    if index == -1:
+        return None
+    else:
+        return users[index]

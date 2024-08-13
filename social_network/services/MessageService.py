@@ -1,18 +1,16 @@
 from firebase_admin import db
-from utils import new_value, update_item
+from utils import new_value, get_info_user, update_item
 import uuid
 from social_network.models import Group, SendMessageDTO
 
 
 async def get_group_by_user(user_id: str):
     ref = db.reference("social-network")
-    groups = ref.child("groups").get()
-
-    if groups is None:
-        groups = []
+    groups = new_value(ref.child("groups").get(), [])
+    users = new_value(ref.child("users").get(), [])
 
     groups = [
-        item
+        update_member_group(users, item)
         for item in groups
         if len([obj for obj in item["members"] if obj["user"]["id"] == user_id]) > 0
     ]
@@ -22,8 +20,11 @@ async def get_group_by_user(user_id: str):
 
 async def get_messages_by_group(group_id: str):
     ref = db.reference("social-network")
-    messages = ref.child("messages").child(group_id).get()
+    messages = new_value(ref.child("messages").child(group_id).get(), [])
+    users = new_value(ref.child("users").get(), [])
 
+    for message in messages:
+        message["user"] = get_info_user(users, message["user"]["id"])
     return messages
 
 
@@ -35,15 +36,13 @@ async def send_message(dto: SendMessageDTO):
     groups = new_value(ref.child("groups").get(), [])
     messages = new_value(ref.child("messages").get(), {})
 
-    message["id"] = str(uuid.uuid4())
-
     group["last_message"] = message
     if group["id"] == "":
         group["id"] = str(uuid.uuid4())
-        messages[group["id"]] = [message]
+        messages = [message]
         groups.append(group)
     else:
-        messages[group["id"]].append(message)
+        messages.append(message)
         groups = update_item(groups, group)
 
     ref.child("groups").set(groups)
@@ -65,6 +64,8 @@ async def get_group_and_message_by_person(user_id: str, current_id: str):
     ref = db.reference("social-network")
 
     groups = ref.child("groups").get()
+    users = new_value(ref.child("users").get(), [])
+
     if groups is None:
         return {"group": None, "messages": []}
 
@@ -85,8 +86,17 @@ async def get_group_and_message_by_person(user_id: str, current_id: str):
     if len(item) == 0:
         return {"group": None, "messages": []}
 
-    item = item[0]
+    item = update_member_group(users, item[0])
 
     messages = await get_messages_by_group(item["id"])
 
     return {"group": item, "messages": messages}
+
+
+def update_member_group(users, group):
+    if "members" in group:
+        for index in range(len(group["members"])):
+            group["members"][index]["user"] = get_info_user(
+                users, group["members"][index]["user"]["id"]
+            )
+    return group
