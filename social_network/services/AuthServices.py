@@ -19,7 +19,7 @@ async def login(login_dto: LoginDTO):
             login_dto.password
         ):
             index = find_index(users, obj["id"])
-            users[index]["last_time_active"] = datetime.now()
+            users[index]["last_time_active"] = str(datetime.now())
             ref.child("users").set(users)
             return users[index]
 
@@ -39,8 +39,8 @@ async def register(user: User):
     users = new_value(ref.child("users").get(), [])
     user.password = md5(user.password)
     user.id = str(uuid.uuid4())
-    user.time_created = datetime.now()
-    user.last_time_active = datetime.now()
+    user.time_created = str(datetime.now())
+    user.last_time_active = str(datetime.now())
 
     check_account = check_exist_account(user, users)
     if check_account:
