@@ -48,7 +48,7 @@ async def send_message(dto: SendMessageDTO):
     ref.child("groups").set(groups)
     ref.child("messages").child(group["id"]).set(messages)
 
-    return message
+    return {"message": message, "group": group}
 
 
 async def update_group(group: Group):
