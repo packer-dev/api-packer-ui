@@ -1,8 +1,6 @@
 from pydantic import BaseModel
 from typing import Any, List, Optional
 from fastapi import UploadFile, File
-from datetime import datetime
-
 
 class LoginDTO(BaseModel):
     email: str
@@ -16,8 +14,8 @@ class User(BaseModel):
     password: str
     avatar: str
     cover: str
-    last_time_active: datetime
-    time_created: datetime
+    last_time_active: str
+    time_created: str
 
 
 class Member(BaseModel):
@@ -37,7 +35,7 @@ class Message(BaseModel):
     id: str
     content: ContentMessage
     user: User
-    time_created: datetime
+    time_created: str
 
 
 class DataGroup(BaseModel):
@@ -51,8 +49,8 @@ class Group(BaseModel):
     members: List[Member]
     last_message: Message
     data: DataGroup
-    time_created: datetime
-    last_time_update: datetime
+    time_created: str
+    last_time_update: str
     image: str
 
 
@@ -87,8 +85,8 @@ class Post(BaseModel):
     id: str
     user: User
     content: ContentPost
-    time_created: datetime
-    last_time_update: datetime
+    time_created: str
+    last_time_update: str
     type: int
     tags: List[User]
     feel: str
@@ -119,8 +117,8 @@ class Comment(BaseModel):
     id: str
     user: User
     content: str
-    time_created: datetime
-    last_time_update: datetime
+    time_created: str
+    last_time_update: str
     level: int
     parent: str
 
