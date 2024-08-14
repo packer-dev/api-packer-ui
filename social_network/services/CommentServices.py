@@ -4,6 +4,12 @@ from utils import new_value, upload_media_db
 import uuid
 
 
+async def get_comment_by_id_post(post_id: str):
+    ref = db.reference("social-network")
+    comments = new_value(ref.child("comments").child(post_id).get(), [])
+    return comments
+
+
 async def send_comment(comment_payload: CommentPayload):
     ref = db.reference("social-network")
 

@@ -32,6 +32,9 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
                     "medias": new_value(
                         ref.child("medias").child("posts").child(post["id"]).get(), []
                     ),
+                    "feel": new_value(
+                        ref.child("feel-post").child(post["id"]).get(), 0
+                    ),
                 }
                 for post in posts
                 if post["user"]["id"] == relationship
@@ -44,6 +47,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
                 "medias": new_value(
                     ref.child("medias").child("posts").child(post["id"]).get(), []
                 ),
+                "feel": new_value(ref.child("feel-post").child(post["id"]).get(), 0),
             }
             for post in posts
             if post["user"]["id"] == user_id
@@ -151,3 +155,22 @@ async def delete_post(post_id: str):
     ref.child("comments").child(post_id).set({})
     ref.child("posts").set(posts)
     return True
+
+
+async def get_post_by_id(post_id):
+    ref = db.reference("social-network")
+
+    posts = new_value(ref.child("posts").get(), [])
+    posts = [post for post in posts if post["id"] == post_id]
+    response = posts[0] if len(posts) == 1 else None
+
+    if response is None:
+        return None
+
+    return {
+        "post": response,
+        "medias": new_value(
+            ref.child("medias").child("posts").child(response["id"]).get(), []
+        ),
+        "feel": new_value(ref.child("feel-post").child(post_id).get(), 0),
+    }

@@ -86,3 +86,33 @@ async def get_friends(user_id: str):
             response.append(users[index])
 
     return response
+
+
+async def get_suggest_friend(user_id: str):
+    ref = db.reference("social-network")
+    users = ref.child("users").get()
+    relationships = ref.child("relationships").get()
+
+    if users is None or relationships is None:
+        return []
+
+    relationships = [
+        relationship
+        for relationship in relationships
+        if relationship["user1"] != user_id or relationship["user2"] != user_id
+    ]
+
+    response = []
+
+    for user in users:
+        index = -1
+        for pos in range(len(relationships)):
+            if (
+                relationships[pos]["user1"] == user["id"]
+                or relationships[pos]["user2"] == user["id"]
+            ):
+                index = pos
+        if index == -1:
+            response.append(user)
+
+    return response

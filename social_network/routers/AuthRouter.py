@@ -6,6 +6,7 @@ from social_network.services.AuthServices import (
     get_user_by_id,
     get_friends,
     update_user_service,
+    get_suggest_friend,
 )
 
 router = APIRouter()
@@ -34,3 +35,8 @@ async def get_user_by_id_api(user_id: str):
 @router.get("/api/social-network/v1/friends")
 async def get_friends_api(user_id: str):
     return await get_friends(user_id)
+
+
+@router.get("/api/social-network/v1/suggest-friend")
+async def get_suggest_friend_api(user_id: str):
+    return await get_suggest_friend(user_id)

@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Any, List, Optional
 from fastapi import UploadFile, File
 
+
 class LoginDTO(BaseModel):
     email: str
     password: str
@@ -113,10 +114,16 @@ class Feel(BaseModel):
     type: int
 
 
+class ContentComment(BaseModel):
+    id: str
+    text: str
+    type: int  # 1. Normal # 2.Sticker # 3.Image/Video
+
+
 class Comment(BaseModel):
     id: str
     user: User
-    content: str
+    content: ContentComment
     time_created: str
     last_time_update: str
     level: int
@@ -126,7 +133,7 @@ class Comment(BaseModel):
 class CommentPayload(BaseModel):
     post_id: str
     comment: Comment
-    media_new: UploadFile = File(...)
+    media_new: Optional[List[UploadFile]] = File(...)
     media_old: Optional[List[Media]] = None
 
 

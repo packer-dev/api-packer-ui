@@ -34,17 +34,16 @@ async def send_message(dto: SendMessageDTO):
     message, group = dto.model_dump().values()
 
     groups = new_value(ref.child("groups").get(), [])
-    messages = new_value(ref.child("messages").child(group["id"]).get(), [])
+    messages = []
 
     group["last_message"] = message
     if group["id"] == "":
         group["id"] = str(uuid.uuid4())
-        messages = [message]
         groups.append(group)
     else:
-        messages.append(message)
+        messages = new_value(ref.child("messages").child(group["id"]).get(), [])
         groups = update_item(groups, group)
-
+    messages.append(message)
     ref.child("groups").set(groups)
     ref.child("messages").child(group["id"]).set(messages)
 
