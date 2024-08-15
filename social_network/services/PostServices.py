@@ -201,11 +201,14 @@ async def send_user_feel_by_post(post_id: str, user_id: str):
         if feels[pos] == user_id:
             index = pos
 
+    is_add = True
+
     if index == -1:
         feels.append(user_id)
     else:
         feels = [feel for feel in feels if feel != user_id]
+        is_add = False
 
     ref.child("feel-post").child(post_id).set(feels)
 
-    return True
+    return is_add
