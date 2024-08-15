@@ -1,4 +1,4 @@
-from social_network.models import User, LoginDTO
+from social_network.models import User, LoginDTO, RelationshipPayload, Relationship
 from firebase_admin import db
 from utils import md5, find_index, find_by_id, new_value
 import uuid
@@ -64,18 +64,11 @@ async def update_user_service(user: User):
     return users[index]
 
 
-async def get_friends(user_id: str):
-    ref = db.reference("social-network")
-    users = ref.child("users").get()
-    relationships = ref.child("relationships").get()
-
-    if users is None or relationships is None:
-        return []
-
+def get_friend_by_id(relationships, users, user_id):
     relationships = [
         relationship
         for relationship in relationships
-        if relationship["user1"] == user_id and relationship["type"] == 3
+        if relationship["user1"] == user_id and relationship["status"] == 3
     ]
 
     response = []
@@ -88,7 +81,7 @@ async def get_friends(user_id: str):
     return response
 
 
-async def get_suggest_friend(user_id: str):
+async def get_friends(user_id: str):
     ref = db.reference("social-network")
     users = ref.child("users").get()
     relationships = ref.child("relationships").get()
@@ -96,23 +89,142 @@ async def get_suggest_friend(user_id: str):
     if users is None or relationships is None:
         return []
 
-    relationships = [
-        relationship
-        for relationship in relationships
-        if relationship["user1"] != user_id or relationship["user2"] != user_id
-    ]
+    return get_friend_by_id(relationships, users, user_id)
 
+
+def get_manual_friend(relationships, users, user1, user2):
+    friend_user_1 = get_friend_by_id(relationships, users, user1)
+    friend_user_1 = {user["id"] for user in friend_user_1}
+    friend_user_2 = get_friend_by_id(relationships, users, user2)
+    friend_user_2 = {user["id"] for user in friend_user_2}
+    return len(friend_user_1.intersection(friend_user_2))
+
+
+def check_relationship_by_user(relationships, user1, user2):
+    relationships = [
+        item
+        for item in relationships
+        if item["user1"] == user1 and item["user2"] == user2
+    ]
+    relationships = relationships[0]["status"] if len(relationships) > 0 else 0
+    return relationships
+
+
+async def get_suggest_friend(user_id: str):
+    ref = db.reference("social-network")
+    users = ref.child("users").get()
+    relationships = new_value(ref.child("relationships").get(), [])
+
+    if users is None:
+        return []
+
+    friends = get_friend_by_id(relationships, users, user_id)
     response = []
 
     for user in users:
-        index = -1
-        for pos in range(len(relationships)):
-            if (
-                relationships[pos]["user1"] == user["id"]
-                or relationships[pos]["user2"] == user["id"]
-            ):
-                index = pos
-        if index == -1:
+        index = find_index(friends, user["id"])
+        if index == -1 and user["id"] != user_id:
             response.append(user)
+    return [
+        {
+            "user": item,
+            "manual": get_manual_friend(
+                relationships=relationships,
+                users=users,
+                user1=user_id,
+                user2=item["id"],
+            ),
+            "status": check_relationship_by_user(
+                relationships=relationships, user1=user_id, user2=item["id"]
+            ),
+        }
+        for item in response
+    ]
 
-    return response
+
+def get_status_relationship(status):
+    status1 = 0
+    status2 = 0
+    if status == "send":
+        status1 = 1
+        status2 = 2
+    elif status == "accept":
+        status1 = 3
+        status2 = 3
+    return {"status1": status1, "status2": status2}
+
+
+def process_status_relationship(
+    relationships, status1, status2, user1, user2, get_user1, get_user2
+):
+    new_relationships = []
+
+    if get_user1 is None:
+        get_user1 = Relationship(
+            id=str(uuid.uuid4()), user1=user1, user2=user2, status=status1
+        )
+        if status1 != 0:
+            new_relationships.append(get_user1.model_dump())
+    else:
+        index = find_index(relationships, get_user1["id"])
+        if index != -1:
+            relationships[index]["status"] = status1
+
+    if get_user2 is None:
+        get_user2 = Relationship(
+            id=str(uuid.uuid4()), user1=user2, user2=user1, status=status2
+        )
+        if status2 != 0:
+            new_relationships.append(get_user2.model_dump())
+    else:
+        index = find_index(relationships, get_user2["id"])
+        if index != -1:
+            relationships[index]["status"] = status2
+
+    return new_relationships
+
+
+async def relationship_request(relationship_payload: RelationshipPayload):
+    user1, user2, status = relationship_payload.model_dump().values()
+
+    ref = db.reference("social-network")
+    relationships = new_value(ref.child("relationships").get(), [])
+
+    get_status = get_status_relationship(status)
+    status1 = get_status["status1"]
+    status2 = get_status["status2"]
+
+    get_user1 = [
+        item
+        for item in relationships
+        if (item["user1"] == user1 and item["user2"] == user2)
+    ]
+    get_user1 = None if len(get_user1) == 0 else get_user1[0]
+    get_user2 = [
+        item
+        for item in relationships
+        if (item["user1"] == user2 and item["user2"] == user1)
+    ]
+    get_user2 = None if len(get_user2) == 0 else get_user2[0]
+
+    new_relationships = process_status_relationship(
+        relationships=relationships,
+        status1=status1,
+        status2=status2,
+        user1=user1,
+        user2=user2,
+        get_user1=get_user1,
+        get_user2=get_user2,
+    )
+
+    if get_user1 is not None and get_user2 is not None:
+        relationships = [
+            item
+            for item in relationships
+            if (status1 != 0 and item["id"] != get_user1["id"])
+            or (status2 != 0 and item["id"] != get_user2["id"])
+        ]
+
+    ref.child("relationships").set(relationships + new_relationships)
+
+    return True

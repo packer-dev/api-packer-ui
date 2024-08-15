@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from social_network.models import LoginDTO, User
+from social_network.models import LoginDTO, User, RelationshipPayload
 from social_network.services.AuthServices import (
     login,
     register,
@@ -7,6 +7,7 @@ from social_network.services.AuthServices import (
     get_friends,
     update_user_service,
     get_suggest_friend,
+    relationship_request,
 )
 
 router = APIRouter()
@@ -40,3 +41,8 @@ async def get_friends_api(user_id: str):
 @router.get("/api/social-network/v1/suggest-friend")
 async def get_suggest_friend_api(user_id: str):
     return await get_suggest_friend(user_id)
+
+
+@router.post("/api/social-network/v1/relationship")
+async def relationship_api(relationship_payload: RelationshipPayload):
+    return await relationship_request(relationship_payload)

@@ -140,3 +140,9 @@ class CommentPayload(BaseModel):
 class FileDTO(BaseModel):
     file: UploadFile = File(...)
     folder: str
+
+
+class RelationshipPayload(BaseModel):
+    user1: str
+    user2: str
+    status: str
