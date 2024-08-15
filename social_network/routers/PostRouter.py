@@ -5,6 +5,8 @@ from social_network.services.PostServices import (
     edit_post,
     delete_post,
     get_post_by_id,
+    get_user_feel_by_post,
+    send_user_feel_by_post,
 )
 from social_network.models import PostPayload, Post, Media
 from typing import List, Optional
@@ -83,3 +85,13 @@ async def delete_post_api(post_id: str):
 @router.get("/api/social-network/v1/post/id")
 async def get_post_by_id_api(post_id: str):
     return await get_post_by_id(post_id)
+
+
+@router.get("/api/social-network/v1/feel")
+async def get_feel_by_post_api(post_id: str):
+    return await get_user_feel_by_post(post_id)
+
+
+@router.post("/api/social-network/v1/feel")
+async def send_feel_by_post_api(post_id: str, user_id: str):
+    return await send_user_feel_by_post(post_id, user_id)

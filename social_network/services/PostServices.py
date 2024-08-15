@@ -1,10 +1,9 @@
 from firebase_admin import db
-from utils import new_value, is_image, is_video, update_item, upload_media_db
+from utils import new_value, update_item, upload_media_db, find_index
 import uuid
-from social_network.models import PostPayload, FileDTO, Media
+from social_network.models import PostPayload
 import os
 from social_network.services.CommonServices import delete_media
-from typing import Optional
 
 
 async def get_post_by_id_user(user_id: str, is_profile: str):
@@ -157,7 +156,7 @@ async def delete_post(post_id: str):
     return True
 
 
-async def get_post_by_id(post_id):
+async def get_post_by_id(post_id: str):
     ref = db.reference("social-network")
 
     posts = new_value(ref.child("posts").get(), [])
@@ -174,3 +173,39 @@ async def get_post_by_id(post_id):
         ),
         "feel": new_value(ref.child("feel-post").child(post_id).get(), 0),
     }
+
+
+async def get_user_feel_by_post(post_id: str):
+    ref = db.reference("social-network")
+
+    feels = new_value(ref.child("feel-post").child(post_id).get(), [])
+    users = new_value(ref.child("users").get(), [])
+
+    response = []
+    for feel in feels:
+        user = [item for item in users if item["id"] == feel]
+        user = None if len(user) == 0 else user[0]
+        if user is not None:
+            response.append(user)
+
+    return response
+
+
+async def send_user_feel_by_post(post_id: str, user_id: str):
+    ref = db.reference("social-network")
+
+    feels = new_value(ref.child("feel-post").child(post_id).get(), [])
+
+    index = -1
+    for pos in range(len(feels)):
+        if feels[pos] == user_id:
+            index = pos
+
+    if index == -1:
+        feels.append(user_id)
+    else:
+        feels = [feel for feel in feels if feel != user_id]
+
+    ref.child("feel-post").child(post_id).set(feels)
+
+    return True
