@@ -32,7 +32,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
                         ref.child("medias").child("posts").child(post["id"]).get(), []
                     ),
                     "feel": new_value(
-                        ref.child("feel-post").child(post["id"]).get(), 0
+                        ref.child("feel-post").child(post["id"]).get(), []
                     ),
                 }
                 for post in posts
@@ -46,7 +46,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
                 "medias": new_value(
                     ref.child("medias").child("posts").child(post["id"]).get(), []
                 ),
-                "feel": new_value(ref.child("feel-post").child(post["id"]).get(), 0),
+                "feel": new_value(ref.child("feel-post").child(post["id"]).get(), []),
             }
             for post in posts
             if post["user"]["id"] == user_id
@@ -171,7 +171,7 @@ async def get_post_by_id(post_id: str):
         "medias": new_value(
             ref.child("medias").child("posts").child(response["id"]).get(), []
         ),
-        "feel": new_value(ref.child("feel-post").child(post_id).get(), 0),
+        "feel": new_value(ref.child("feel-post").child(post_id).get(), []),
     }
 
 
