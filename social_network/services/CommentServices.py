@@ -13,9 +13,12 @@ async def get_comment_by_id_post(post_id: str):
 async def send_comment(comment_payload: CommentPayload):
     ref = db.reference("social-network")
 
-    comment, media_new, post_id = comment_payload.model_dump().values()
+    comment_payload = comment_payload.model_dump()
+    comment = comment_payload["comment"]
+    post_id = comment_payload["post_id"]
+    media_new = comment_payload["media_new"]
 
-    media_list = upload_media_db(media_new)
+    media_list = await upload_media_db(media_new)
 
     comments = ref.child("comments").child(post_id).get()
     comments = new_value(comments, [])

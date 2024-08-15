@@ -49,6 +49,9 @@ def is_video(filename):
 
 
 async def upload_media_db(media_new):
+    if media_new is None:
+        return []
+
     media_list = []
 
     for media in media_new:

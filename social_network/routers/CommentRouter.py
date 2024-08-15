@@ -33,7 +33,9 @@ async def sent_comment_api(
         level=comment["level"],
         parent=comment["parent"],
     )
-    comment_payload = CommentPayload(post_id, comment, media_new, media_old)
+    comment_payload = CommentPayload(
+        post_id=post_id, comment=comment, media_new=media_new, media_old=media_old
+    )
     return await send_comment(comment_payload)
 
 
