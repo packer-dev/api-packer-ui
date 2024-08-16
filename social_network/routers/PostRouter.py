@@ -23,7 +23,7 @@ async def get_post_by_id_user_api(user_id: str, is_profile: str):
 @router.post("/api/social-network/v1/post")
 async def create_post_api(
     post: str = Form(...),
-    media_new: Optional[List[UploadFile]] = File(None),  # Set default to None
+    media_new: List[UploadFile] = File(None),  # Set default to None
 ):
     post = json.loads(post)
 
