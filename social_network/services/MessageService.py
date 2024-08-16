@@ -101,12 +101,16 @@ def update_member_group(users, group):
     return group
 
 
-async def update_status_message(group_id):
+async def update_status_message(group_id, user_id):
     ref = db.reference("social-network")
     messages = new_value(ref.child("messages").child(group_id).get(), [])
 
     if len(messages) > 0:
-        is_read = messages[len(messages) - 1]["is_read"]
+        is_read = True
+        for i in range(len(messages) - 1, -1, -1):
+            if messages[i]["user"]["id"] != user_id and messages[i]["is_read"] == False:
+                is_read = False
+                break
         if is_read == False:
             messages[len(messages) - 1]["status"] = True
             ref.child("messages").child(group_id).set(messages)

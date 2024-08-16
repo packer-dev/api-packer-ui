@@ -39,8 +39,8 @@ async def get_group_and_message_by_person_api(user_id: str, current_id: str):
 
 
 @router.get("/api/social-network/v1/message/update")
-async def update_status_message_api(group_id):
-    return await update_status_message(group_id)
+async def update_status_message_api(group_id, user_id):
+    return await update_status_message(group_id, user_id)
 
 
 @router.get("/api/social-network/v1/message/status")
