@@ -37,6 +37,7 @@ class Message(BaseModel):
     content: ContentMessage
     user: User
     time_created: str
+    is_read: bool
 
 
 class DataGroup(BaseModel):

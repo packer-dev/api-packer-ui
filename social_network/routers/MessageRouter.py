@@ -6,6 +6,8 @@ from social_network.services.MessageService import (
     update_group,
     get_messages_by_group,
     get_group_and_message_by_person,
+    update_status_message,
+    get_amount_message_not_read,
 )
 
 router = APIRouter()
@@ -34,3 +36,13 @@ async def get_messages_by_group_api(group_id: str):
 @router.get("/api/social-network/v1/message/get-child")
 async def get_group_and_message_by_person_api(user_id: str, current_id: str):
     return await get_group_and_message_by_person(user_id, current_id)
+
+
+@router.get("/api/social-network/v1/message/update")
+async def update_status_message_api(group_id):
+    return await update_status_message(group_id)
+
+
+@router.get("/api/social-network/v1/message/status")
+async def get_amount_message_not_read_api(user_id):
+    return await get_amount_message_not_read(user_id)
