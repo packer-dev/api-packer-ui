@@ -247,7 +247,7 @@ async def upload_media_profile_user(folder, file, is_cover, user_id):
 
     if index != -1:
         url = ""
-        if is_cover:
+        if is_cover == "True":
             url = users[index]["cover"]
         else:
             url = users[index]["avatar"]
@@ -258,10 +258,10 @@ async def upload_media_profile_user(folder, file, is_cover, user_id):
 
         file_dto = FileDTO(file=file, folder=f"/FacebookNative/{(folder)}")
         result = await upload_media(file_dto)
-        if is_cover:
+        if is_cover == "True":
             users[index]["cover"] = result["url"]
         else:
             users[index]["avatar"] = result["url"]
         ref.child("users").set(users)
-        return True
-    return False
+        return {"url": result["url"]}
+    return {"url": ""}
