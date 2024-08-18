@@ -8,7 +8,10 @@ from social_network.services.AuthServices import (
     update_user_service,
     get_suggest_friend,
     relationship_request,
+    upload_media_profile_user,
 )
+from fastapi import Form, UploadFile, File
+from typing import List
 
 router = APIRouter()
 
@@ -46,3 +49,15 @@ async def get_suggest_friend_api(user_id: str):
 @router.post("/api/social-network/v1/relationship")
 async def relationship_api(relationship_payload: RelationshipPayload):
     return await relationship_request(relationship_payload)
+
+
+@router.post("/api/social-network/v1/upload-profile")
+async def upload_media_profile_user_api(
+    folder: str = Form(...),
+    file: UploadFile = File(None),
+    is_cover: str = Form(...),
+    user_id: str = Form(...),
+):
+    return await upload_media_profile_user(
+        folder=folder, file=file, is_cover=is_cover, user_id=user_id
+    )

@@ -1,9 +1,14 @@
 from firebase_admin import db
-from utils import new_value, update_item, upload_media_db, find_index
+from utils import new_value, update_item, upload_media_db, get_info_user
 import uuid
 from social_network.models import PostPayload
 import os
 from social_network.services.CommonServices import delete_media
+
+
+def update_user_post(users, post):
+    post["user"] = get_info_user(users, post["user"]["id"])
+    return post
 
 
 async def get_post_by_id_user(user_id: str, is_profile: str):
@@ -11,6 +16,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
 
     posts = ref.child("posts").get()
     relationships = ref.child("relationships").get()
+    users = new_value(ref.child("users").get(), [])
 
     if posts is None or relationships is None:
         return []
@@ -27,7 +33,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
         for relationship in relationships:
             list_post = [
                 {
-                    "post": post,
+                    "post": update_user_post(users, post),
                     "medias": new_value(
                         ref.child("medias").child("posts").child(post["id"]).get(), []
                     ),
@@ -42,7 +48,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
     else:
         response = [
             {
-                "post": post,
+                "post": update_user_post(users, post),
                 "medias": new_value(
                     ref.child("medias").child("posts").child(post["id"]).get(), []
                 ),

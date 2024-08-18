@@ -98,6 +98,9 @@ def update_member_group(users, group):
             group["members"][index]["user"] = get_info_user(
                 users, group["members"][index]["user"]["id"]
             )
+        group["last_message"]["user"] = get_info_user(
+            users, group["last_message"]["user"]["id"]
+        )
     return group
 
 

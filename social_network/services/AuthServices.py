@@ -1,8 +1,16 @@
-from social_network.models import User, LoginDTO, RelationshipPayload, Relationship
+from social_network.models import (
+    User,
+    LoginDTO,
+    RelationshipPayload,
+    Relationship,
+    FileDTO,
+)
 from firebase_admin import db
 from utils import md5, find_index, find_by_id, new_value
 import uuid
 from datetime import datetime
+from social_network.services.CommonServices import upload_media, delete_media
+import os
 
 
 async def get_user_by_id(id: str):
@@ -228,3 +236,32 @@ async def relationship_request(relationship_payload: RelationshipPayload):
     ref.child("relationships").set(relationships + new_relationships)
 
     return True
+
+
+async def upload_media_profile_user(folder, file, is_cover, user_id):
+    ref = db.reference("social-network")
+
+    users = new_value(ref.child("users").get(), [])
+
+    index = find_index(users, user_id)
+
+    if index != -1:
+        url = ""
+        if is_cover:
+            url = users[index]["cover"]
+        else:
+            url = users[index]["avatar"]
+        public_id = os.path.splitext(
+            url[url.find(f"FacebookNative/{(folder)}/") : len(url)]
+        )[0]
+        await delete_media(public_id)
+
+        file_dto = FileDTO(file=file, folder=f"/FacebookNative/{(folder)}")
+        result = await upload_media(file_dto)
+        if is_cover:
+            users[index]["cover"] = result["url"]
+        else:
+            users[index]["avatar"] = result["url"]
+        ref.child("users").set(users)
+        return True
+    return False
