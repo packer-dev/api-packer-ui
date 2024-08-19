@@ -4,6 +4,7 @@ import uuid
 from social_network.models import PostPayload
 import os
 from social_network.services.CommonServices import delete_media
+from social_network.services.AuthServices import get_friends
 
 
 def update_user_post(users, post):
@@ -164,14 +165,11 @@ async def delete_post(post_id: str):
 
 async def get_post_by_id(post_id: str):
     ref = db.reference("social-network")
-
     posts = new_value(ref.child("posts").get(), [])
     posts = [post for post in posts if post["id"] == post_id]
     response = posts[0] if len(posts) == 1 else None
-
     if response is None:
         return None
-
     return {
         "post": response,
         "medias": new_value(
@@ -183,10 +181,8 @@ async def get_post_by_id(post_id: str):
 
 async def get_user_feel_by_post(post_id: str):
     ref = db.reference("social-network")
-
     feels = new_value(ref.child("feel-post").child(post_id).get(), [])
     users = new_value(ref.child("users").get(), [])
-
     response = []
     for feel in feels:
         user = [item for item in users if item["id"] == feel]
@@ -199,22 +195,46 @@ async def get_user_feel_by_post(post_id: str):
 
 async def send_user_feel_by_post(post_id: str, user_id: str):
     ref = db.reference("social-network")
-
     feels = new_value(ref.child("feel-post").child(post_id).get(), [])
-
     index = -1
     for pos in range(len(feels)):
         if feels[pos] == user_id:
             index = pos
-
     is_add = True
-
     if index == -1:
         feels.append(user_id)
     else:
         feels = [feel for feel in feels if feel != user_id]
         is_add = False
-
     ref.child("feel-post").child(post_id).set(feels)
 
     return is_add
+
+
+async def get_media(user_id, type):
+    ref = db.reference("social-network")
+
+    posts = new_value(ref.child("posts").get(), [])
+    if len(posts) == 0:
+        return []
+
+    if type == "Friends":
+        return await get_friends(user_id)
+    else:
+        response = []
+        posts = [post for post in posts if post["user"]["id"] == user_id]
+        for post in posts:
+            medias = new_value(
+                ref.child("medias").child("posts").child(post["id"]).get(), []
+            )
+            for media in medias:
+                if media["type"] == type:
+                    response.append(
+                        {
+                            "post_id": post["id"],
+                            "user_id": post["user"]["id"],
+                            "media": media,
+                        }
+                    )
+
+        return response

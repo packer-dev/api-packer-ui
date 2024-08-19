@@ -4,6 +4,9 @@ from social_network.models import (
     RelationshipPayload,
     Relationship,
     FileDTO,
+    Post,
+    Media,
+    ContentPost,
 )
 from firebase_admin import db
 from utils import md5, find_index, find_by_id, new_value
@@ -242,7 +245,7 @@ async def upload_media_profile_user(folder, file, is_cover, user_id):
     ref = db.reference("social-network")
 
     users = new_value(ref.child("users").get(), [])
-
+    posts = new_value(ref.child("posts").get(), [])
     index = find_index(users, user_id)
 
     if index != -1:
@@ -258,10 +261,31 @@ async def upload_media_profile_user(folder, file, is_cover, user_id):
 
         file_dto = FileDTO(file=file, folder=f"/FacebookNative/{(folder)}")
         result = await upload_media(file_dto)
+
+        content = ContentPost(id=str(uuid.uuid4()), data="", type=1, text="")
+        post = Post(
+            id=str(uuid.uuid4()),
+            user=users[index],
+            content=content,
+            feel="",
+            last_time_update=str(datetime.now()),
+            time_created=str(datetime.now()),
+            tags=[],
+            type=(2 if is_cover == "True" else 3),
+        )
+        posts.append(post.model_dump())
+
         if is_cover == "True":
             users[index]["cover"] = result["url"]
         else:
             users[index]["avatar"] = result["url"]
+
+        media = Media(
+            id=str(uuid.uuid4()), folder=folder, status=1, type=1, url=result["url"]
+        )
+
+        ref.child("medias").child("posts").child(post.id).set([media.model_dump()])
         ref.child("users").set(users)
+        ref.child("posts").set(posts)
         return {"url": result["url"]}
     return {"url": ""}

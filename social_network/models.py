@@ -17,6 +17,7 @@ class User(BaseModel):
     cover: str
     last_time_active: str
     time_created: str
+    bio: str
 
 
 class Member(BaseModel):

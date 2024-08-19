@@ -57,9 +57,9 @@ async def upload_media_db(media_new):
     for media in media_new:
         folder = "Other"
         if is_image(media.filename):
-            folder = "Image"
+            folder = "Images"
         if is_video(media.filename):
-            folder = "Video"
+            folder = "Videos"
 
         file_dto = FileDTO(file=media, folder=f"/FacebookNative/{folder}")
         result = await upload_media(file_dto)

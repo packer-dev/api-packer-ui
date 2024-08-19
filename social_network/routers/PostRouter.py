@@ -7,6 +7,7 @@ from social_network.services.PostServices import (
     get_post_by_id,
     get_user_feel_by_post,
     send_user_feel_by_post,
+    get_media,
 )
 from social_network.models import PostPayload, Post, Media
 from typing import List, Optional
@@ -95,3 +96,8 @@ async def get_feel_by_post_api(post_id: str):
 @router.post("/api/social-network/v1/feel")
 async def send_feel_by_post_api(post_id: str, user_id: str):
     return await send_user_feel_by_post(post_id, user_id)
+
+
+@router.get("/api/social-network/v1/post/media")
+async def get_media_api(user_id: str, type: int):
+    return await get_media(user_id, type)
