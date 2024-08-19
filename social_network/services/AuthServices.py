@@ -263,6 +263,8 @@ async def upload_media_profile_user(folder, file, is_cover, user_id):
         result = await upload_media(file_dto)
 
         content = ContentPost(id=str(uuid.uuid4()), data="", type=1, text="")
+        users[index]["bio"] = ""
+
         post = Post(
             id=str(uuid.uuid4()),
             user=users[index],

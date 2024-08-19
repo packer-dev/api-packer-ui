@@ -218,7 +218,7 @@ async def get_media(user_id, type):
     if len(posts) == 0:
         return []
 
-    if type == "Friends":
+    if type == 0:
         return await get_friends(user_id)
     else:
         response = []
