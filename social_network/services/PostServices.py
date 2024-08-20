@@ -4,7 +4,7 @@ import uuid
 from social_network.models import PostPayload
 import os
 from social_network.services.CommonServices import delete_media
-from social_network.services.AuthServices import get_friends
+from social_network.services.AuthServices import get_friend_main
 
 
 def update_user_post(users, post):
@@ -211,7 +211,7 @@ async def send_user_feel_by_post(post_id: str, user_id: str):
     return is_add
 
 
-async def get_media(user_id, type):
+async def get_media(user_id, type, limit=9, offset=0):
     ref = db.reference("social-network")
 
     posts = new_value(ref.child("posts").get(), [])
@@ -219,7 +219,7 @@ async def get_media(user_id, type):
         return []
 
     if type == 0:
-        return await get_friends(user_id)
+        return await get_friend_main(user_id, 3)
     else:
         response = []
         posts = [post for post in posts if post["user"]["id"] == user_id]
@@ -237,4 +237,7 @@ async def get_media(user_id, type):
                         }
                     )
 
-        return response
+        return {
+            "list": response[offset : limit * (1 if offset == 0 else offset)],
+            "total": len(response),
+        }

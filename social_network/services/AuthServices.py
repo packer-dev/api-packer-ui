@@ -291,3 +291,93 @@ async def upload_media_profile_user(folder, file, is_cover, user_id):
         ref.child("posts").set(posts)
         return {"url": result["url"]}
     return {"url": ""}
+
+
+async def relationship_check(user1, user2):
+    ref = db.reference("social-network")
+    relationships = new_value(ref.child("relationships").get(), [])
+
+    if len(relationships) == 0:
+        return None
+    response = [
+        relationship
+        for relationship in relationships
+        if relationship["user1"] == user1 and relationship["user2"] == user2
+    ]
+    response = None if len(response) == 0 else response[0]["status"]
+
+    return response
+
+
+async def get_friend_user(user_id: str):
+    ref = db.reference("social-network")
+    users = ref.child("users").get()
+    relationships = new_value(ref.child("relationships").get(), [])
+
+    if users is None:
+        return []
+
+    friends = get_friend_by_id(relationships, users, user_id)
+
+    return [
+        {
+            "user": item,
+            "manual": get_manual_friend(
+                relationships=relationships,
+                users=users,
+                user1=user_id,
+                user2=item["id"],
+            ),
+        }
+        for item in friends
+    ]
+
+
+async def get_request_friend_user(user_id, is_send):
+    ref = db.reference("social-network")
+    users = ref.child("users").get()
+    relationships = new_value(ref.child("relationships").get(), [])
+
+    response = []
+
+    if is_send:
+        response = [
+            relationship["user2"]
+            for relationship in relationships
+            if relationship["user1"] == user_id and relationship["status"] == 1
+        ]
+    else:
+        response = [
+            relationship["user2"]
+            for relationship in relationships
+            if relationship["user1"] == user_id and relationship["status"] == 2
+        ]
+
+    friends = []
+    for item in response:
+        index = find_index(users, item)
+        if index != -1:
+            friends.append(users[index])
+
+    return [
+        {
+            "user": item,
+            "manual": get_manual_friend(
+                relationships=relationships,
+                users=users,
+                user1=user_id,
+                user2=item["id"],
+            ),
+        }
+        for item in friends
+    ]
+
+
+async def get_friend_main(user_id: str, status: int = 3):
+    if status == 3:
+        return await get_friend_user(user_id)
+    if status == 2:
+        return await get_request_friend_user(user_id, False)
+    if status == 1:
+        return await get_request_friend_user(user_id, True)
+    return []

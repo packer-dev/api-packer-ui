@@ -99,5 +99,5 @@ async def send_feel_by_post_api(post_id: str, user_id: str):
 
 
 @router.get("/api/social-network/v1/post/media")
-async def get_media_api(user_id: str, type: int):
-    return await get_media(user_id, type)
+async def get_media_api(user_id: str, type: int, limit: int, offset: int):
+    return await get_media(user_id, type, limit, offset)
