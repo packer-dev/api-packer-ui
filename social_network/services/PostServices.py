@@ -218,8 +218,11 @@ async def get_media(user_id, type, limit=9, offset=0):
     if len(posts) == 0:
         return []
 
+    response = []
+
     if type == 0:
-        return await get_friend_main(user_id, 3)
+        response = await get_friend_main(user_id, 3)
+
     else:
         response = []
         posts = [post for post in posts if post["user"]["id"] == user_id]
@@ -237,7 +240,7 @@ async def get_media(user_id, type, limit=9, offset=0):
                         }
                     )
 
-        return {
-            "list": response[offset : limit * (1 if offset == 0 else offset)],
-            "total": len(response),
-        }
+    return {
+        "list": response[offset : limit * (1 if offset == 0 else offset)],
+        "total": len(response),
+    }
