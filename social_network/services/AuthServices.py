@@ -14,12 +14,15 @@ import uuid
 from datetime import datetime
 from social_network.services.CommonServices import upload_media, delete_media
 import os
+from social_network.dto.response import user_response
 
 
 async def get_user_by_id(id: str):
     ref = db.reference("social-network")
     users = new_value(ref.child("users").get(), [])
-    return find_by_id(users, id)
+    user = find_by_id(users, id)
+
+    return user_response(user)
 
 
 async def login(login_dto: LoginDTO):
@@ -32,7 +35,7 @@ async def login(login_dto: LoginDTO):
             index = find_index(users, obj["id"])
             users[index]["last_time_active"] = str(datetime.now())
             ref.child("users").set(users)
-            return users[index]
+            return user_response(users[index])
 
     return None
 
@@ -59,7 +62,7 @@ async def register(user: User):
 
     users.append(user.model_dump())
     ref.child("users").set(users)
-    return user
+    return user_response(user.model_dump())
 
 
 async def update_user_service(user: User):
@@ -72,7 +75,7 @@ async def update_user_service(user: User):
     users[index] = user.model_dump()
 
     ref.child("users").set(users)
-    return users[index]
+    return user_response(users[index])
 
 
 def get_friend_by_id(relationships, users, user_id):
@@ -87,7 +90,7 @@ def get_friend_by_id(relationships, users, user_id):
     for relationship in relationships:
         index = find_index(users, relationship["user2"])
         if index != -1:
-            response.append(users[index])
+            response.append(user_response(users[index]))
 
     return response
 
@@ -135,7 +138,7 @@ async def get_suggest_friend(user_id: str):
     for user in users:
         index = find_index(friends, user["id"])
         if index == -1 and user["id"] != user_id:
-            response.append(user)
+            response.append(user_response(user))
     return [
         {
             "user": item,
@@ -228,14 +231,12 @@ async def relationship_request(relationship_payload: RelationshipPayload):
         get_user2=get_user2,
     )
 
-    if get_user1 is not None and get_user2 is not None:
+    if status == "":
         relationships = [
             item
             for item in relationships
-            if (status1 != 0 and item["id"] != get_user1["id"])
-            or (status2 != 0 and item["id"] != get_user2["id"])
+            if get_user1["id"] != item["id"] and get_user2["id"] != item["id"]
         ]
-
     ref.child("relationships").set(relationships + new_relationships)
 
     return True
@@ -321,7 +322,7 @@ async def get_friend_user(user_id: str):
 
     return [
         {
-            "user": item,
+            "user": user_response(item),
             "manual": get_manual_friend(
                 relationships=relationships,
                 users=users,
@@ -357,7 +358,7 @@ async def get_request_friend_user(user_id, is_send):
     for item in response:
         index = find_index(users, item)
         if index != -1:
-            friends.append(users[index])
+            friends.append(user_response(users[index]))
 
     return [
         {

@@ -3,6 +3,7 @@ import os
 from social_network.models import FileDTO, Media
 from social_network.services.CommonServices import upload_media
 import uuid
+from social_network.dto.response import user_response
 
 
 def find_index(list, id):
@@ -81,4 +82,4 @@ def get_info_user(users, id):
     if index == -1:
         return None
     else:
-        return users[index]
+        return user_response(users[index])

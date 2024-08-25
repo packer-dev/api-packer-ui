@@ -19,7 +19,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
     relationships = ref.child("relationships").get()
     users = new_value(ref.child("users").get(), [])
 
-    if posts is None or relationships is None:
+    if posts is None and relationships is None:
         return []
 
     response = []
@@ -60,7 +60,9 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
         ]
 
     # Assuming each item has a datetime field in ISO format
-    sorted_data = sorted(response, key=lambda x: x["post"]["time_created"])
+    sorted_data = sorted(
+        response, key=lambda x: x["post"]["time_created"], reverse=True
+    )
     return sorted_data
 
 
