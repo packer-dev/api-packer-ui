@@ -28,7 +28,7 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
         relationships = [
             relationship["user2"]
             for relationship in relationships
-            if relationship["user1"] == user_id
+            if relationship["user1"] == user_id and relationship["status"] == 3
         ]
 
         for relationship in relationships:
@@ -228,7 +228,8 @@ async def get_media(user_id, type, limit=9, offset=0):
     else:
         response = []
         posts = [post for post in posts if post["user"]["id"] == user_id]
-        for post in posts:
+        sorted_data = sorted(posts, key=lambda x: x["time_created"], reverse=True)
+        for post in sorted_data:
             medias = new_value(
                 ref.child("medias").child("posts").child(post["id"]).get(), []
             )
