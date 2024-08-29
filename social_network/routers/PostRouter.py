@@ -13,15 +13,17 @@ from social_network.models import PostPayload, Post, Media
 from typing import List, Optional
 import json
 
-router = APIRouter()
+router = APIRouter(prefix="/api/social-network/v1")
 
 
-@router.get("/api/social-network/v1/post")
-async def get_post_by_id_user_api(user_id: str, is_profile: str):
-    return await get_post_by_id_user(user_id, is_profile)
+@router.get("/post")
+async def get_post_by_id_user_api(
+    user_id: str, is_profile: str, offset: int, limit: int
+):
+    return await get_post_by_id_user(user_id, is_profile, offset, limit)
 
 
-@router.post("/api/social-network/v1/post")
+@router.post("/post")
 async def create_post_api(
     post: str = Form(...),
     media_new: List[UploadFile] = File(None),  # Set default to None
@@ -42,7 +44,7 @@ async def create_post_api(
     return await create_post(post_payload)
 
 
-@router.put("/api/social-network/v1/post")
+@router.put("/post")
 async def edit_post_api(
     post: str = Form(...),
     media_new: Optional[List[UploadFile]] = File(None),  # Set default to None
@@ -78,26 +80,26 @@ async def edit_post_api(
     return await edit_post(post_payload)
 
 
-@router.delete("/api/social-network/v1/post")
+@router.delete("/post")
 async def delete_post_api(post_id: str):
     return await delete_post(post_id)
 
 
-@router.get("/api/social-network/v1/post/id")
+@router.get("/post/id")
 async def get_post_by_id_api(post_id: str):
     return await get_post_by_id(post_id)
 
 
-@router.get("/api/social-network/v1/feel")
+@router.get("/feel")
 async def get_feel_by_post_api(post_id: str):
     return await get_user_feel_by_post(post_id)
 
 
-@router.post("/api/social-network/v1/feel")
+@router.post("/feel")
 async def send_feel_by_post_api(post_id: str, user_id: str):
     return await send_user_feel_by_post(post_id, user_id)
 
 
-@router.get("/api/social-network/v1/post/media")
+@router.get("/post/media")
 async def get_media_api(user_id: str, type: int, limit: int, offset: int):
     return await get_media(user_id, type, limit, offset)

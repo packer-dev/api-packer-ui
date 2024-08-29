@@ -148,3 +148,13 @@ class RelationshipPayload(BaseModel):
     user1: str
     user2: str
     status: str
+
+
+class Notification(BaseModel):
+    id: str
+    type: int  # 1 love #2 comment #3 reply comment
+    main_id: str
+    user: User
+    time_created: str
+    is_read: bool
+    last_update_time: str

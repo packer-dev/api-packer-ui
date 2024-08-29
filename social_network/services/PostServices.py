@@ -5,6 +5,8 @@ from social_network.models import PostPayload
 import os
 from social_network.services.CommonServices import delete_media
 from social_network.services.AuthServices import get_friend_main
+from datetime import datetime
+from concurrent import futures
 
 
 def update_user_post(users, post):
@@ -12,18 +14,21 @@ def update_user_post(users, post):
     return post
 
 
-async def get_post_by_id_user(user_id: str, is_profile: str):
+async def get_post_by_id_user(
+    user_id: str, is_profile: str, offset: int = 0, limit: int = 10
+):
     ref = db.reference("social-network")
 
     posts = ref.child("posts").get()
     relationships = ref.child("relationships").get()
+    feel_post = ref.child("feel-post").get()
     users = new_value(ref.child("users").get(), [])
+    media_post = new_value(ref.child("medias").child("posts").get(), [])
 
     if posts is None and relationships is None:
         return []
 
     response = []
-
     if is_profile == "false":
         relationships = [
             relationship["user2"]
@@ -32,38 +37,24 @@ async def get_post_by_id_user(user_id: str, is_profile: str):
         ]
 
         for relationship in relationships:
-            list_post = [
-                {
-                    "post": update_user_post(users, post),
-                    "medias": new_value(
-                        ref.child("medias").child("posts").child(post["id"]).get(), []
-                    ),
-                    "feel": new_value(
-                        ref.child("feel-post").child(post["id"]).get(), []
-                    ),
-                }
-                for post in posts
-                if post["user"]["id"] == relationship
-            ]
-            response = response + list_post
+            filter_post = [post for post in posts if post["user"]["id"] == relationship]
+            response = response + filter_post
+
     else:
-        response = [
-            {
-                "post": update_user_post(users, post),
-                "medias": new_value(
-                    ref.child("medias").child("posts").child(post["id"]).get(), []
-                ),
-                "feel": new_value(ref.child("feel-post").child(post["id"]).get(), []),
-            }
-            for post in posts
-            if post["user"]["id"] == user_id
-        ]
+        response = [post for post in posts if post["user"]["id"] == user_id]
 
     # Assuming each item has a datetime field in ISO format
-    sorted_data = sorted(
-        response, key=lambda x: x["post"]["time_created"], reverse=True
-    )
-    return sorted_data
+    sorted_data = sorted(response, key=lambda x: x["time_created"], reverse=True)
+    sorted_data = [
+        {
+            "post": update_user_post(users, post),
+            "medias": new_value(media_post.get(post["id"]), []),
+            "feel": new_value(feel_post.get(post["id"]), []),
+        }
+        for post in sorted_data
+    ]
+    sorted_data = sorted_data[offset : limit * (1 if offset == 0 else offset)]
+    return {"total": len(sorted_data), "list": sorted_data}
 
 
 async def create_post(post_payload: PostPayload):
@@ -74,6 +65,7 @@ async def create_post(post_payload: PostPayload):
         media_new = post_payload.media_new
 
         post["id"] = str(uuid.uuid4())
+        post["time_created"] = str(datetime.now())
         posts = ref.child("posts").get()
 
         media_list = []
@@ -84,7 +76,7 @@ async def create_post(post_payload: PostPayload):
         if posts is None:
             ref.child("posts").set([post])
         else:
-            posts.append(post)
+            posts = [post] + posts
             ref.child("posts").set(posts)
 
         ref.child("medias").child("posts").child(post["id"]).set(media_list)

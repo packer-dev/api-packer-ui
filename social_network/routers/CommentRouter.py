@@ -8,15 +8,15 @@ from social_network.models import CommentPayload, Comment
 from typing import Optional, List
 import json
 
-router = APIRouter()
+router = APIRouter(prefix="/api/social-network/v1/comment")
 
 
-@router.get("/api/social-network/v1/comment/id")
+@router.get("/id")
 async def get_comment_by_id_post_api(post_id: str):
     return await get_comment_by_id_post(post_id)
 
 
-@router.post("/api/social-network/v1/comment")
+@router.post("")
 async def sent_comment_api(
     post_id: str = Form(...),
     comment: str = Form(...),
@@ -39,6 +39,6 @@ async def sent_comment_api(
     return await send_comment(comment_payload)
 
 
-@router.delete("/api/social-network/v1/comment")
+@router.delete("")
 async def sent_comment_api(comment_id: str, post_id: str):
     return await delete_comment(post_id, comment_id)
