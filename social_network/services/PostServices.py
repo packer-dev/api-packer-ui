@@ -24,6 +24,7 @@ async def get_post_by_id_user(
     feel_post = ref.child("feel-post").get()
     users = new_value(ref.child("users").get(), [])
     media_post = new_value(ref.child("medias").child("posts").get(), [])
+    comments = new_value(ref.child("comments").get(), [])
 
     if posts is None and relationships is None:
         return []
@@ -50,6 +51,7 @@ async def get_post_by_id_user(
             "post": update_user_post(users, post),
             "medias": new_value(media_post.get(post["id"]), []),
             "feel": new_value(feel_post.get(post["id"]), []),
+            "comment": len(new_value(comments.get(post["id"]), [])),
         }
         for post in sorted_data
     ]

@@ -22,9 +22,15 @@ async def get_messages_by_group_api(group_id: str):
 
 @router.post("/image")
 async def upload_image_group_api(
-    group_id: str = Form(...), file: UploadFile = File(None), folder: str = Form(...)
+    group_id: str = Form(...),
+    file: UploadFile = File(None),
+    folder: str = Form(...),
+    emoji: str = Form(...),
+    name: str = Form(...),
 ):
-    return await upload_image_group(group_id=group_id, file=file, folder=folder)
+    return await upload_image_group(
+        group_id=group_id, file=file, folder=folder, emoji=emoji, name=name
+    )
 
 
 @router.post("/info")

@@ -24,7 +24,7 @@ async def get_messages_by_group(group_id: str):
     return messages
 
 
-async def upload_image_group(file, group_id, folder):
+async def upload_image_group(file, group_id, folder, emoji, name):
     ref = db.reference("social-network")
     groups = new_value(ref.child("groups").get(), [])
     group_index = find_index(groups, group_id)
@@ -38,17 +38,20 @@ async def upload_image_group(file, group_id, folder):
         )[0]
         await delete_media([public_id])
 
-    file_dto = FileDTO(file=file, folder=f"FacebookNative/{folder}/")
+    if file is not None:
+        file_dto = FileDTO(file=file, folder=f"FacebookNative/{folder}/")
 
-    response = await upload_media(file_dto)
-    if "url" not in response:
-        return None
+        response = await upload_media(file_dto)
+        if "url" not in response:
+            return None
+        groups[group_index]["image"] = response["url"]
 
-    groups[group_index]["image"] = response["url"]
+    groups[group_index]["data"]["emoji"] = emoji
+    groups[group_index]["name"] = name
 
     ref.child("groups").set(groups)
 
-    return True
+    return groups[group_index]
 
 
 async def upload_info_group(group: Group):
