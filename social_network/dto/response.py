@@ -50,6 +50,7 @@ def group_response(group: dict) -> dict:
         "time_created": group.get("time_created"),
         "last_time_update": group.get("last_time_update"),
         "image": group.get("image"),
+        "seen": group.get("seen"),
     }
 
 
@@ -64,6 +65,5 @@ def message_response(message: dict) -> dict:
             ),  # Assuming content is already in dict format
             "user": message.get("user"),  # Assuming user is already in dict format
             "time_created": message.get("time_created"),
-            "is_read": message.get("is_read"),
         }
     )

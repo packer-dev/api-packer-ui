@@ -3,11 +3,13 @@ from utils import new_value, get_info_user, update_item, find_index
 from social_network.models import Group, FileDTO
 from social_network.services.CommonServices import delete_media, upload_media
 import os
+from datetime import datetime
 
 
 async def update_group(group: Group):
     ref = db.reference("social-network")
     groups = new_value(ref.child("groups").get(), [])
+    group.last_time_update = datetime.now()
     groups = update_item(groups, group.model_dump())
 
     ref.child("groups").set(groups)

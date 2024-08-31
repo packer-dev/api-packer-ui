@@ -162,12 +162,13 @@ async def delete_post(post_id: str):
 async def get_post_by_id(post_id: str):
     ref = db.reference("social-network")
     posts = new_value(ref.child("posts").get(), [])
+    users = new_value(ref.child("users").get(), [])
     posts = [post for post in posts if post["id"] == post_id]
     response = posts[0] if len(posts) == 1 else None
     if response is None:
         return None
     return {
-        "post": response,
+        "post": update_user_post(users, response),
         "medias": new_value(
             ref.child("medias").child("posts").child(response["id"]).get(), []
         ),

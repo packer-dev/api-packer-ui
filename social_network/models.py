@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Any, List, Optional
 from fastapi import UploadFile, File
+from typing import Any
 
 
 class LoginDTO(BaseModel):
@@ -38,7 +39,6 @@ class Message(BaseModel):
     content: ContentMessage
     user: User
     time_created: str
-    is_read: bool
 
 
 class DataGroup(BaseModel):
@@ -55,6 +55,7 @@ class Group(BaseModel):
     time_created: str
     last_time_update: str
     image: str
+    seen: Any
 
 
 class SendMessageDTO(BaseModel):
@@ -157,4 +158,4 @@ class Notification(BaseModel):
     user: User
     time_created: str
     is_read: bool
-    last_update_time: str
+    last_time_update: str

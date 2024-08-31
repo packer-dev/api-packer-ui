@@ -13,6 +13,7 @@ from social_network.services.AuthServices import (
     get_friend_main,
 )
 from fastapi import Form, UploadFile, File
+from typing import List
 
 router = APIRouter(prefix="/api/social-network/v1")
 
@@ -37,9 +38,9 @@ async def get_user_by_id_api(user_id: str):
     return await get_user_by_id(user_id)
 
 
-@router.get("/friends")
-async def get_friends_api(user_id: str):
-    return await get_friends(user_id)
+@router.post("/friends")
+async def get_friends_api(user_id: str, selected: List[str] = None):
+    return await get_friends(user_id, selected)
 
 
 @router.get("/suggest-friend")

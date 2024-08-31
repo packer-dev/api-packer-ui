@@ -15,6 +15,7 @@ from datetime import datetime
 from social_network.services.CommonServices import upload_media, delete_media
 import os
 from social_network.dto.response import user_response
+from typing import List
 
 
 async def get_user_by_id(id: str):
@@ -95,7 +96,7 @@ def get_friend_by_id(relationships, users, user_id):
     return response
 
 
-async def get_friends(user_id: str):
+async def get_friends(user_id: str, selected: List[str] = None):
     ref = db.reference("social-network")
     users = ref.child("users").get()
     relationships = ref.child("relationships").get()
@@ -103,7 +104,17 @@ async def get_friends(user_id: str):
     if users is None or relationships is None:
         return []
 
-    return get_friend_by_id(relationships, users, user_id)
+    friends = get_friend_by_id(relationships, users, user_id)
+    response = []
+    for item in friends:
+        check = (
+            [{}]
+            if len(selected) == 0
+            else [child for child in selected if child == item["id"]]
+        )
+        if len(check) > 0:
+            response.append(item)
+    return response
 
 
 def get_manual_friend(relationships, users, user1, user2):

@@ -1,7 +1,8 @@
 from firebase_admin import db
-from utils import new_value, get_info_user, update_item
+from utils import new_value, get_info_user, update_item, find_index
 import uuid
 from social_network.models import Group, SendMessageDTO
+from datetime import datetime
 
 
 async def get_group_by_user(user_id: str):
@@ -37,6 +38,9 @@ async def send_message(dto: SendMessageDTO):
     messages = []
 
     group["last_message"] = message
+    group["last_time_update"] = str(datetime.now())
+    group["time_created"] = str(datetime.now())
+
     if group["id"] == "":
         group["id"] = str(uuid.uuid4())
         groups.append(group)
@@ -106,33 +110,23 @@ def update_member_group(users, group):
 
 async def update_status_message(group_id, user_id):
     ref = db.reference("social-network")
-    messages = new_value(ref.child("messages").child(group_id).get(), [])
+    groups = new_value(ref.child("groups").get(), [])
 
-    if len(messages) > 0:
-        for i in range(len(messages) - 1, -1, -1):
-            if messages[i]["user"]["id"] != user_id and messages[i]["is_read"] == False:
-                messages[len(messages) - 1]["status"] = True
-                ref.child("messages").child(group_id).set(messages)
-                return True
-    return False
+    index = find_index(groups, group_id)
+    if index == -1:
+        return False
+
+    groups[index]["seen"][user_id] = True
+    ref.child("groups").set(groups)
+
+    return True
 
 
 async def get_amount_message_not_read(user_id):
-    ref = db.reference("social-network")
-
     groups = await get_group_by_user(user_id)
-    response = []
+    count = 0
     for group in groups:
-        messages = new_value(ref.child("messages").child(group["id"]).get(), [])
-        if len(messages) > 0:
-            is_read = True
-            for i in range(len(messages) - 1, -1, -1):
-                if (
-                    messages[i]["user"]["id"] != user_id
-                    and messages[i]["is_read"] == False
-                ):
-                    is_read = False
-                    break
-            if is_read == False:
-                response.append(group)
-    return len(response)
+        status = group["seen"][user_id] if user_id in group["seen"] else True
+        if status == False:
+            count = count + 1
+    return count
