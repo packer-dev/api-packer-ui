@@ -16,7 +16,11 @@ async def get_group_by_user(user_id: str):
         if len([obj for obj in item["members"] if obj["user"]["id"] == user_id]) > 0
     ]
 
-    return groups
+    sorted_data = sorted(
+        groups, key=lambda x: x["last_message"]["time_created"], reverse=True
+    )
+
+    return sorted_data
 
 
 async def get_messages_by_group(group_id: str):

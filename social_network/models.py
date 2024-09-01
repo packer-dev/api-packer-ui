@@ -56,6 +56,7 @@ class Group(BaseModel):
     last_time_update: str
     image: str
     seen: Any
+    multiple: bool
 
 
 class SendMessageDTO(BaseModel):
@@ -98,7 +99,7 @@ class Post(BaseModel):
 
 class PostPayload(BaseModel):
     post: Post
-    media_new: List[UploadFile] = File(None)
+    media_new: Optional[List[UploadFile]] = File(None)
     media_old: List[Media] = []
 
     def __iter__(self):

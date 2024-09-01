@@ -51,6 +51,7 @@ def group_response(group: dict) -> dict:
         "last_time_update": group.get("last_time_update"),
         "image": group.get("image"),
         "seen": group.get("seen"),
+        "multiple": group.get("multiple"),
     }
 
 

@@ -6,6 +6,7 @@ from social_network.services.GroupService import (
     upload_info_group,
 )
 from social_network.models import Group
+from typing import Optional
 
 router = APIRouter(prefix="/api/social-network/v1/group")
 
@@ -23,7 +24,7 @@ async def get_messages_by_group_api(group_id: str):
 @router.post("/image")
 async def upload_image_group_api(
     group_id: str = Form(...),
-    file: UploadFile = File(None),
+    file: Optional[UploadFile] = File(None),
     folder: str = Form(...),
     emoji: str = Form(...),
     name: str = Form(...),
