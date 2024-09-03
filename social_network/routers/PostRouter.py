@@ -9,8 +9,8 @@ from social_network.services.PostServices import (
     send_user_feel_by_post,
     get_media,
 )
-from social_network.models import PostPayload, Post, Media
-from typing import List, Optional
+from social_network.models import PostPayload, Post, Media, ContentPost, User
+from typing import List, Optional, Union
 import json
 
 router = APIRouter(prefix="/api/social-network/v1")
@@ -26,7 +26,7 @@ async def get_post_by_id_user_api(
 @router.post("/post")
 async def create_post_api(
     post: str = Form(...),
-    media_new: Optional[List[UploadFile]] = File(None),  # Set default to None
+    media_new: List[Union[UploadFile, None]] = File(None),  # Set default to None
 ):
     post = json.loads(post)
 
@@ -47,34 +47,55 @@ async def create_post_api(
 @router.put("/post")
 async def edit_post_api(
     post: str = Form(...),
-    media_new: Optional[List[UploadFile]] = File(None),  # Set default to None
+    media_new: List[Union[UploadFile, None]] = File(None),  # Set default to None
     media_old: Optional[str] = Form(None),  # Set default to None
 ):
     post = json.loads(post)
 
+    content = ContentPost(
+        id=post["content"]["id"],
+        text=post["content"]["text"],
+        data=post["content"]["data"] if "data" in post["content"] else {},
+        type=post["content"]["type"],
+    )
+
+    user = User(
+        id=post["user"]["id"],
+        name=post["user"]["name"],
+        email=post["user"]["email"],
+        password=post["user"]["password"],
+        avatar=post["user"]["avatar"],
+        cover=post["user"]["cover"],
+        last_time_active=post["user"]["last_time_active"],
+        time_created=post["user"]["time_created"],
+        bio=post["user"]["bio"],
+    )
+
     post = Post(
         id=post["id"],
-        user=post["user"],
-        content=post["content"],
+        user=user,
+        content=content,
         time_created=post["time_created"],
         last_time_update=post["last_time_update"],
         type=post["type"],
-        tags=post["tags"],
+        tags=[],
         feel=post["feel"],
     )
 
-    media_olds = json.loads(media_old)
+    media_olds = []
 
-    media_olds = [
-        Media(
-            id=media_old["id"],
-            url=media_old["url"],
-            status=media_old["status"],
-            type=media_old["type"],
-            folder=media_old["folder"],
-        )
-        for media_old in media_olds
-    ]
+    if media_old is not None:
+        media_olds = json.loads(media_old)
+        media_olds = [
+            Media(
+                id=media_old["id"],
+                url=media_old["url"],
+                status=media_old["status"],
+                type=media_old["type"],
+                folder=media_old["folder"],
+            )
+            for media_old in media_olds
+        ]
 
     post_payload = PostPayload(media_new=media_new, post=post, media_old=media_olds)
     return await edit_post(post_payload)

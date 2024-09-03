@@ -99,7 +99,7 @@ class Post(BaseModel):
 
 class PostPayload(BaseModel):
     post: Post
-    media_new: Optional[List[UploadFile]] = File(None)
+    media_new: Optional[List[UploadFile]] = None
     media_old: List[Media] = []
 
     def __iter__(self):
