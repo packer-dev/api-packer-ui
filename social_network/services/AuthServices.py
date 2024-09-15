@@ -248,6 +248,7 @@ async def relationship_request(relationship_payload: RelationshipPayload):
             for item in relationships
             if get_user1["id"] != item["id"] and get_user2["id"] != item["id"]
         ]
+
     ref.child("relationships").set(relationships + new_relationships)
 
     return True
