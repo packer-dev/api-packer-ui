@@ -95,6 +95,9 @@ class Post(BaseModel):
     type: int
     tags: List[User]
     feel: str
+    background: str
+    answer_question: str
+    local: str
 
 
 class PostPayload(BaseModel):

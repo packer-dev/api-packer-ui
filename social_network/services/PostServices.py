@@ -50,7 +50,10 @@ async def get_post_by_id_user(
         {
             "post": update_user_post(users, post),
             "medias": new_value(media_post.get(post["id"]), []),
-            "feel": new_value(feel_post.get(post["id"]), []),
+            "feel": [
+                {"id": item["id"], "type": item["type"]}
+                for item in new_value(feel_post.get(post["id"]), [])
+            ],
             "comment": len(new_value(comments.get(post["id"]), [])),
         }
         for post in sorted_data
@@ -173,6 +176,7 @@ async def get_post_by_id(post_id: str):
     response = posts[0] if len(posts) == 1 else None
     if response is None:
         return None
+
     return {
         "post": update_user_post(users, response),
         "medias": new_value(
@@ -196,19 +200,23 @@ async def get_user_feel_by_post(post_id: str):
     return response
 
 
-async def send_user_feel_by_post(post_id: str, user_id: str):
+async def send_user_feel_by_post(post_id: str, user_id: str, type: int):
     ref = db.reference("social-network")
     feels = new_value(ref.child("feel-post").child(post_id).get(), [])
+    users = new_value(ref.child("users").child(post_id).get(), [])
     index = -1
+    user = [item for item in users if item["id"] == user_id]
+    user = user[0] if len(user) == 1 else None
+    new_feel = {"id": str(uuid.uuid4()), "type": type, "user": user}
     for pos in range(len(feels)):
         if feels[pos] == user_id:
             index = pos
-    is_add = True
+    is_add = new_feel
     if index == -1:
-        feels.append(user_id)
+        feels.append(new_feel)
     else:
         feels = [feel for feel in feels if feel != user_id]
-        is_add = False
+        is_add = None
     ref.child("feel-post").child(post_id).set(feels)
 
     return is_add
