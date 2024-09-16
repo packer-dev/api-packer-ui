@@ -124,8 +124,8 @@ async def get_feel_by_post_api(post_id: str):
 
 
 @router.post("/feel")
-async def send_feel_by_post_api(post_id: str, user_id: str):
-    return await send_user_feel_by_post(post_id, user_id)
+async def send_feel_by_post_api(post_id: str, user_id: str, type: int):
+    return await send_user_feel_by_post(post_id, user_id, type)
 
 
 @router.get("/post/media")
