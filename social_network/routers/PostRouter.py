@@ -30,10 +30,17 @@ async def create_post_api(
 ):
     post = json.loads(post)
 
+    content = ContentPost(
+        id=post["content"]["id"],
+        text=post["content"]["text"],
+        data=post["content"]["data"] if "data" in post["content"] else {},
+        type=post["content"]["type"],
+    )
+
     post = Post(
         id=post["id"],
         user=post["user"],
-        content=post["content"],
+        content=content,
         time_created=post["time_created"],
         last_time_update=post["last_time_update"],
         type=post["type"],

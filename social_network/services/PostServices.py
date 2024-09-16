@@ -62,6 +62,7 @@ async def get_post_by_id_user(
 async def create_post(post_payload: PostPayload):
     try:
         ref = db.reference("social-network")
+        users = ref.child("users").get()
 
         post = post_payload.post.model_dump()
         media_new = post_payload.media_new
@@ -83,7 +84,12 @@ async def create_post(post_payload: PostPayload):
 
         ref.child("medias").child("posts").child(post["id"]).set(media_list)
 
-        return post
+        return {
+            "post": update_user_post(users, post),
+            "medias": media_list,
+            "feel": [],
+            "comment": [],
+        }
 
     except OSError as err:
         print("OS error:", err)
