@@ -52,7 +52,11 @@ async def get_post_by_id_user(
             "medias": new_value(media_post.get(post["id"]), []),
             "feel": [
                 {"id": item["id"], "type": item["type"]}
-                for item in new_value(feel_post.get(post["id"]), [])
+                for item in (
+                    feel_post[post["id"]]
+                    if feel_post is not None and post["id"] in feel_post
+                    else []
+                )
             ],
             "comment": len(new_value(comments.get(post["id"]), [])),
         }
