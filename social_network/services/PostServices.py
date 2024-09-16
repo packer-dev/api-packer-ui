@@ -207,7 +207,7 @@ async def get_user_feel_by_post(post_id: str):
 async def send_user_feel_by_post(post_id: str, user_id: str, type: int):
     ref = db.reference("social-network")
     feels = new_value(ref.child("feel-post").child(post_id).get(), [])
-    users = new_value(ref.child("users").child(post_id).get(), [])
+    users = new_value(ref.child("users").get(), [])
     index = -1
     user = [item for item in users if item["id"] == user_id]
     user = user[0] if len(user) == 1 else None
