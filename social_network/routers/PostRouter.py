@@ -46,6 +46,10 @@ async def create_post_api(
         type=post["type"],
         tags=post["tags"],
         feel=post["feel"],
+        background=post["background"],
+        answer_question=post["answer_question"],
+        local=post["local"],
+        activity=post["activity"],
     )
     post_payload = PostPayload(media_new=media_new, post=post, media_old=[])
     return await create_post(post_payload)

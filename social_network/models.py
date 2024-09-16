@@ -86,6 +86,37 @@ class Media(BaseModel):
     folder: str
 
 
+class Background(BaseModel):
+    id: int
+    value: str
+    key: str
+    type: int
+
+
+class Activity(BaseModel):
+    id: int
+    data: str
+    label: str
+    name: str
+    idActivity: int
+
+
+class Feel(BaseModel):
+    id: int
+    data: str
+    label: str
+
+
+class AnswerQuestion(BaseModel):
+    id: int
+    data: str
+
+
+class Local(BaseModel):
+    id: int
+    name: str
+
+
 class Post(BaseModel):
     id: str
     user: User
@@ -94,10 +125,11 @@ class Post(BaseModel):
     last_time_update: str
     type: int
     tags: List[User]
-    feel: str
-    background: str
-    answer_question: str
-    local: str
+    feel: Optional[Feel]
+    background: Optional[Background]
+    answer_question: Optional[AnswerQuestion]
+    local: Optional[Local]
+    activity: Optional[Activity]
 
 
 class PostPayload(BaseModel):
